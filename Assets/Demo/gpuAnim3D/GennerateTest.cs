@@ -33,11 +33,11 @@ public class GennerateTest : MonoBehaviour
             
             animIDList.Add((int)Random.Range(0, 3));
         }
-        if (Input.GetKey(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             for (int i = 0; i < animIDList.Count; i++)
             {
-                animIDList[i] = animIDList[i] % 3;
+                animIDList[i] = (animIDList[i] + 1 )% 3;
             }
         }
 
