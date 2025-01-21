@@ -1,0 +1,119 @@
+﻿#pragma kernel GpuVerticesCompute
+
+//对应每个对象且需要赋值的变量
+struct GpuVerticesDataInput
+{
+	float4x4 trsMatrix;
+	int animID;
+	int isLoop;
+	float startFrame;
+	float animationLength;
+};
+StructuredBuffer<GpuVerticesDataInput> inputBuffer;
+
+//对应每个对象但不需要赋值且后续可能要读写的变量
+struct RWData
+{
+	float timer;
+	int lastAnimID;
+};
+RWStructuredBuffer<RWData> rwData;
+
+//统一的变量
+uint inputCount;
+float fps;
+uint texheight;
+float4 cameraPlanes[6];
+float3 boxCenter;
+float3 boxExtents;
+
+//输出到Shader的变量
+struct GpuVerticesDataOutput
+{
+	float4x4 trsMatrixCulled;
+	float frameCulled;
+};
+AppendStructuredBuffer<GpuVerticesDataOutput> outputBuffer;
+
+//判断点是否在平面外
+bool IsOutsidePlane(float4 plane , float3 pointPosition)
+{
+	return dot(plane.xyz , pointPosition) + plane.w > 0;
+}
+
+//判断包围盒是否被剔除
+bool IsCulled(in float4 boundVerts[8])
+{
+	//如果包围盒8个点在视锥体某个面之外，则剔除
+	for (int i = 0; i < 6; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			if(!IsOutsidePlane(cameraPlanes[i] , boundVerts[j].xyz)) break;
+			if(j == 7) return true;
+		}
+	}
+	return false;
+}
+
+//帧数达到了动画的长度时执行返回0或返回动画长度
+float IsTimeOver(int loop , float time , float length)
+{
+	if (time > length)
+	{
+		if (loop = 1)
+		{
+			time = 0;
+		}
+		else
+		{
+			time = length;
+		}
+	}
+	return time;
+}
+
+//判断当前帧和上一帧是否相同
+void IsChangAnimID(float time , int current , int last)
+{
+	if (current != last)
+	{
+		time = 0;
+		last = time;
+	}
+}
+
+//核函数
+[numthreads(64,1,1)]
+void GpuVerticesCompute (uint3 id : SV_DispatchThreadID)
+{
+	if (id.x >= inputCount) return;
+//视锥体剔除
+	float4x4 instance = inputBuffer[id.x].trsMatrix;
+
+	float3 boundMin = boxCenter - boxExtents;
+	float3 boundMax = boxCenter + boxExtents;
+	float4 boundVerts[8];
+	boundVerts[0] = mul(instance, float4(boundMin, 1));
+    boundVerts[1] = mul(instance, float4(boundMax, 1));
+    boundVerts[2] = mul(instance, float4(boundMax.x, boundMax.y, boundMin.z, 1));
+    boundVerts[3] = mul(instance, float4(boundMax.x, boundMin.y, boundMax.z, 1));
+    boundVerts[6] = mul(instance, float4(boundMax.x, boundMin.y, boundMin.z, 1));
+    boundVerts[4] = mul(instance, float4(boundMin.x, boundMax.y, boundMax.z, 1));
+    boundVerts[5] = mul(instance, float4(boundMin.x, boundMax.y, boundMin.z, 1));
+    boundVerts[7] = mul(instance, float4(boundMin.x, boundMin.y, boundMax.z, 1));
+//动画帧数
+	rwData[id.x].timer += fps;
+    rwData[id.x].timer = IsTimeOver(inputBuffer[id.x].isLoop, rwData[id.x].timer, inputBuffer[id.x].animationLength);
+    IsChangAnimID(rwData[id.x].timer, (int)inputBuffer[id.x].animID, rwData[id.x].lastAnimID);
+    float frameIndex = (rwData[id.x].timer + inputBuffer[id.x].startFrame) / texheight;
+
+//输出Buffer
+	if(!IsCulled(boundVerts))
+	{
+		GpuVerticesDataOutput output = (GpuVerticesDataOutput)0;
+        output.trsMatrixCulled = instance;
+		output.frameCulled = frameIndex;
+        outputBuffer.Append(output);
+	}	
+}
