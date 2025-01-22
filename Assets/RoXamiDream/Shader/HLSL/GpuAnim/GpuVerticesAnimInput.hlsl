@@ -1,16 +1,16 @@
-float3 TransformVertices(float3 pos , float2 uv , float frameIndex , float texHeight)
+float3 TransformVertices(Texture2D<float4> VerticesAnimTex , float3 pos , float2 uv , float frameIndex)
 {
-	float3 vertexOffest = SAMPLE_TEXTURE2D_LOD(_verticesAnimTex, sampler_verticesAnimTex, uv + float2(0 ,frameIndex / texHeight), 0).xyz;
+	float3 vertexOffest = VerticesAnimTex.Load(int3(uv.x , frameIndex , 0));
 	return pos + vertexOffest;
 }
 
-float3 TransformNormals(float2 uv , float frameIndex , float texWidth , float texHeight)
+float3 TransformNormals(Texture2D<float4> VerticesAnimTex , float2 uv , float frameIndex)
 {
-	return SAMPLE_TEXTURE2D_LOD(_verticesAnimTex, sampler_verticesAnimTex, uv + float2(1 / texWidth , frameIndex / texHeight), 0).xyz;
+	return VerticesAnimTex.Load(int3(uv.x + 1 , frameIndex , 0));
 }
 
-float4 TransformTangents(float2 uv , float frameIndex , float texWidth , float texHeight)
+float4 TransformTangents(Texture2D<float4> VerticesAnimTex , float2 uv , float frameIndex)
 {
-	return SAMPLE_TEXTURE2D_LOD(_verticesAnimTex, sampler_verticesAnimTex, uv + float2(2 / texWidth , frameIndex / texHeight), 0);
+	return VerticesAnimTex.Load(int3(uv.x + 2 , frameIndex , 0));
 }
 

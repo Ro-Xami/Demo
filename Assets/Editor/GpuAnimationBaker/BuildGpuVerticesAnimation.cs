@@ -74,7 +74,7 @@ public static class BuildGpuVerticesAnimation
         matPath = savePath + "/" + prefab.name + "_VerticesAnimationMaterial" + ".mat";
         prefabPath = savePrefabPath + "/" + prefab.name + "_GpuAnim" + ".prefab";
 
-        CreatNewMesh();
+        CreatNewMesh(isNormalTangent);
 
         CreatA2T(prefab, clips, frame, isNormalTangent);
 
@@ -94,7 +94,7 @@ public static class BuildGpuVerticesAnimation
             gpuVerticesAnimations[h].animtionName = clips[h].name;
             if (h > 0) { startFtame += (int)(frame * clips[h - 1].length); }
             gpuVerticesAnimations[h].startFrame = startFtame;
-            gpuVerticesAnimations[h].frameLength = (int)(frame * clips[h].length) - 1;
+            gpuVerticesAnimations[h].frameLength = (int)(frame * clips[h].length);
             gpuVerticesAnimations[h].isLoop = clips[h].isLooping;
         }
         mono.animations = gpuVerticesAnimations;
@@ -116,8 +116,6 @@ public static class BuildGpuVerticesAnimation
         if (isNormalTangent)
         {
             mat.SetFloat("_isNormalTangent", 1);
-            mat.SetFloat("_texWidth", texWidth);
-            mat.SetFloat("_texHeight", texHeight);
         }
         mat.SetTexture("_verticesAnimTex", AssetDatabase.LoadAssetAtPath<Texture2D>(A2TPath));
         mat.enableInstancing = true;
@@ -190,12 +188,21 @@ public static class BuildGpuVerticesAnimation
         AssetDatabase.CreateAsset(A2T, A2TPath);
         AssetDatabase.SaveAssets();
     }
-    public static void CreatNewMesh()
+    public static void CreatNewMesh(bool isNormalTangent)
     {
         Vector2[] animUV = new Vector2[mesh.vertexCount];
         for (int k = 0; k < mesh.vertexCount; k++)
         {
-            animUV[k] = new Vector2((k + 0.5f / 3f)/ mesh.vertexCount, 0.5f / texHeight);//防止输出整数类型
+            //animUV[k] = new Vector2((k + 0.5f / 3f)/ mesh.vertexCount, 0.5f / texHeight);//防止输出整数类型
+            if (isNormalTangent)
+            {
+                animUV[k] = new Vector2(k * 3, 0);
+            }
+            else
+            {
+                animUV[k] = new Vector2(k, 0);
+            }
+                
         }
         mesh.SetUVs(1, animUV);
         AssetDatabase.CreateAsset(mesh, meshPath);
