@@ -198,7 +198,7 @@ public class BuildGpuBonesAnimation
             int bw1 = mesh.boneWeights[i].boneIndex1;
             int bw2 = mesh.boneWeights[i].boneIndex2;
             int bw3 = mesh.boneWeights[i].boneIndex3;
-            bonesUV[i] = new Vector4(bw0 / (float)skMesh.bones.Length, bw1 / (float)skMesh.bones.Length, bw2 / (float)skMesh.bones.Length, bw3 / (float)skMesh.bones.Length);
+            bonesUV[i] = new Vector4(bw0 * 3, bw1 * 3, bw2 * 3, bw3 * 3);
         }
         mesh.SetUVs(1, bonesUV);
 

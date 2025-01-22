@@ -69,7 +69,6 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 			#pragma shader_feature_local _ISNORMALTANGENT_ON
 
 			Texture2D<float4> _verticesAnimTex;
-			//SAMPLER(sampler_verticesAnimTex);
 
 			#include "../HLSL/GpuAnim/GpuVerticesAnimInput.hlsl"
 			
