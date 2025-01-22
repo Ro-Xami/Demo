@@ -4,7 +4,6 @@ using UnityEngine;
 public class GpuVerticesAnimatorMono : MonoBehaviour
 {
     public int frame = 60;
-    [HideInInspector] public int textureHeight;
     public GpuVerticesAnimations[] animations;
 
     private MaterialPropertyBlock propertyBlock;
@@ -14,7 +13,6 @@ public class GpuVerticesAnimatorMono : MonoBehaviour
     private List<int> lastID = new List<int>(100000);
     private float[] frameIndex;
 
-    private uint[] args = new uint[5];
     private void Start()
     {
         mesh = this.GetComponent<MeshFilter>().sharedMesh;
@@ -56,7 +54,6 @@ public class GpuVerticesAnimatorMono : MonoBehaviour
             timer[i] = getFrameByLoop(animations[animID[i]].frameLength, timer[i], animations[animID[i]].isLoop);
             //Debug.Log(timer[i]);
             frameIndex[i] = animations[animID[i]].startFrame + timer[i];
-            frameIndex[i] = frameIndex[i] / textureHeight;
             //Debug.Log(frameIndex[i]);
         }
         propertyBlock = new MaterialPropertyBlock();

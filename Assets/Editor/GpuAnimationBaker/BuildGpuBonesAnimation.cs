@@ -110,10 +110,8 @@ public class BuildGpuBonesAnimation
             gpuVerticesAnimations[h].isLoop = clips[h].isLooping;
         }
         mono.animations = gpuVerticesAnimations;
-        mono.textureHeight = texHeight;
         mono.frame = frame;
         compute.animations = gpuVerticesAnimations;
-        compute.textureHeight = texHeight;
         compute.frame = frame;
     }
     public static void CreatMaterial(bool isNormalTangent)

@@ -56,21 +56,21 @@ public static class BuildGpuVerticesAnimation
         {
             animLength += (int)(frame * clips[i].length);
         }
-        texWidth = Mathf.NextPowerOfTwo(mesh.vertexCount);
+        texHeight = animLength;
         if (isNormalTangent)
         {
-            texHeight = Mathf.NextPowerOfTwo(animLength * 3);
+            texWidth = mesh.vertexCount * 3;
         }
         else
         {
-            texHeight = Mathf.NextPowerOfTwo(animLength);
+            texWidth = mesh.vertexCount;
         }
 
         A2T = new Texture2D(texWidth, texHeight, TextureFormat.RGBAHalf, false, true);
 
         //------------------------------------------------------------------保存路径-------------------------------------------------------------
         meshPath = savePath + "/" + prefab.name + "_VerticesAnimationMesh" + ".asset";
-        A2TPath = savePath + "/" + prefab.name + "_VerticesAnimationTexture" + ".exr";
+        A2TPath = savePath + "/" + prefab.name + "_VerticesAnimationTexture" + ".asset";
         matPath = savePath + "/" + prefab.name + "_VerticesAnimationMaterial" + ".mat";
         prefabPath = savePrefabPath + "/" + prefab.name + "_GpuAnim" + ".prefab";
 
@@ -96,14 +96,12 @@ public static class BuildGpuVerticesAnimation
             gpuVerticesAnimations[h].animtionName = clips[h].name;
             if (h > 0) { startFtame += (int)(frame * clips[h - 1].length); }
             gpuVerticesAnimations[h].startFrame = startFtame;
-            gpuVerticesAnimations[h].frameLength = (int)(frame * clips[h].length);
+            gpuVerticesAnimations[h].frameLength = (int)(frame * clips[h].length) - 1;
             gpuVerticesAnimations[h].isLoop = clips[h].isLooping;
         }
         mono.animations = gpuVerticesAnimations;
-        mono.textureHeight = texHeight;
         mono.frame = frame;
         compute.animations = gpuVerticesAnimations;
-        compute.textureHeight = texHeight;
         compute.frame = frame;
     }
     public static void CreatMaterial(bool isNormalTangent)
@@ -120,7 +118,8 @@ public static class BuildGpuVerticesAnimation
         if (isNormalTangent)
         {
             mat.SetFloat("_isNormalTangent", 1);
-            mat.SetFloat("_animationPixelLength", (float)animLength / texHeight);
+            mat.SetFloat("_texWidth", texWidth);
+            mat.SetFloat("_texHeight", texHeight);
         }
         mat.SetTexture("_verticesAnimTex", AssetDatabase.LoadAssetAtPath<Texture2D>(A2TPath));
         mat.enableInstancing = true;
@@ -148,18 +147,8 @@ public static class BuildGpuVerticesAnimation
     }
     public static void CreatA2T()
     {
-        File.WriteAllBytes(A2TPath, A2T.EncodeToEXR(Texture2D.EXRFlags.None));
-        AssetDatabase.Refresh();
-        TextureImporter texImporter = AssetImporter.GetAtPath(A2TPath) as TextureImporter;
-        texImporter.filterMode = FilterMode.Point;
-        texImporter.textureCompression = TextureImporterCompression.Uncompressed;
-        texImporter.wrapMode = TextureWrapMode.Clamp;
-        texImporter.mipmapEnabled = false;
-        texImporter.sRGBTexture = false;
-        texImporter.npotScale = TextureImporterNPOTScale.None;
-        int maxSize = GetMaxSize(texWidth, texHeight);
-        texImporter.maxTextureSize = maxSize;
-        texImporter.SaveAndReimport();
+        AssetDatabase.CreateAsset(A2T, A2TPath);
+        AssetDatabase.SaveAssets();
     }
     public static void SetA2TData(GameObject prefab, AnimationClip[] clips, int frame, bool isNormalTangent)
     {
@@ -181,8 +170,7 @@ public static class BuildGpuVerticesAnimation
                 skMesh[0].BakeMesh(bakeMesh);
                 Vector3[] bakeMeshVertices = bakeMesh.vertices;
 
-                if (isNormalTangent)
-                {
+                
                     Vector3[] bakeMeshNormals = bakeMesh.normals;
                     Vector4[] bakeMeshTangents = bakeMesh.tangents;
 
@@ -190,23 +178,17 @@ public static class BuildGpuVerticesAnimation
                     {
                         Vector3 offestPos = bakeMeshVertices[j] - originalVertices[j];
                         Color verticesData = new Color(offestPos.x, offestPos.y, offestPos.z, 1);
-                        A2T.SetPixel(j, i + previewAnimationLength, verticesData);
+                        A2T.SetPixel(j * 3, i + previewAnimationLength, verticesData);
 
-                        Color normalsData = new Color(bakeMeshNormals[j].x, bakeMeshNormals[j].y, bakeMeshNormals[j].z, 1);
-                        Color tangentsData = bakeMeshTangents[j];
-                        A2T.SetPixel(j, animLength + i + previewAnimationLength, normalsData);
-                        A2T.SetPixel(j, animLength * 2 + i + previewAnimationLength, tangentsData);
+                        if (isNormalTangent)
+                        {
+                            Color normalsData = new Color(bakeMeshNormals[j].x, bakeMeshNormals[j].y, bakeMeshNormals[j].z, 1);
+                            A2T.SetPixel(j * 3 + 1, i + previewAnimationLength, normalsData);
+
+                            Color tangentsData = bakeMeshTangents[j]; 
+                            A2T.SetPixel(j * 3 + 2, i + previewAnimationLength, tangentsData);
+                        }
                     }
-                }
-                else
-                {
-                    for (int j = 0; j < bakeMeshVertices.Length; j++)
-                    {
-                        Vector3 offestPos = bakeMeshVertices[j] - originalVertices[j];
-                        Color verticesData = new Color(offestPos.x, offestPos.y, offestPos.z, 1);
-                        A2T.SetPixel(j, i + previewAnimationLength, verticesData);
-                    }
-                }
 
             }
         }
@@ -215,28 +197,13 @@ public static class BuildGpuVerticesAnimation
     }
     public static void CreatNewMesh()
     {
-        float uvXOffset = (float)mesh.vertexCount / texWidth;
-
         Vector2[] animUV = new Vector2[mesh.vertexCount];
         for (int k = 0; k < mesh.vertexCount; k++)
         {
-            animUV[k] = new Vector2((float)k / mesh.vertexCount * uvXOffset, 0f);//防止输出整数类型
+            animUV[k] = new Vector2((k + 0.5f / 3f)/ mesh.vertexCount, 0.5f / texHeight);//防止输出整数类型
         }
         mesh.SetUVs(1, animUV);
         AssetDatabase.CreateAsset(mesh, meshPath);
         AssetDatabase.SaveAssets();
-    }
-    public static int GetMaxSize(int x, int y)
-    {
-        int z;
-        if (x >= y)
-        {
-            z = x;
-        }
-        else
-        {
-            z = y;
-        }
-        return z;
     }
 }

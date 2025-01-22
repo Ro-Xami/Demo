@@ -6,15 +6,19 @@ using UnityEngine.Rendering;
 
 public class GennerateTest : MonoBehaviour
 {
+    public int startNumber = 10000;
+    public int range = 100;
+    public bool isMonoOrCompute = true;
+
+    [Header("ต๗สิ")]
+    public int totalNumber;
+    public int firstAnimID;
+
     private GpuVerticesAnimatorMono animatorMono;
     private GpuVerticesAnimatorCompute animatorCompute;
     private List<int> animIDList = new List<int>();
     private List<Matrix4x4> matrixList = new List<Matrix4x4>();
-    
-    public int startNumber = 10000;
-    public int totalNumber;
-    public int range = 100;
-    public bool isMonoOrCompute = true;
+
     void Start()
     {
         animatorMono = this.GetComponent<GpuVerticesAnimatorMono>();
@@ -41,6 +45,7 @@ public class GennerateTest : MonoBehaviour
             }
         }
 
+        firstAnimID = animIDList[0];
         totalNumber = animIDList.Count;
 
         if (isMonoOrCompute)

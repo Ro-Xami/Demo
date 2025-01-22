@@ -8,7 +8,6 @@ public class GpuVerticesAnimatorCompute : MonoBehaviour
     public int frame = 60;
     public int instanceMaxCount;
     public Bounds drawBounds;
-    [HideInInspector]public int textureHeight;
     public GpuVerticesAnimations[] animations;
     public ComputeShader compute;
 
@@ -101,7 +100,6 @@ public class GpuVerticesAnimatorCompute : MonoBehaviour
         compute.SetBuffer(kernel, "rwData", rwBuffer);
         compute.SetFloat("fps", Time.deltaTime * frame);
         compute.SetFloat("inputCount", instanceCount);
-        compute.SetFloat("texheight", textureHeight);
         compute.SetVector("boxCenter", bounds.center);
         compute.SetVector("boxExtents", bounds.extents);
         compute.SetBuffer(kernel, "outputBuffer", outputBuffer);

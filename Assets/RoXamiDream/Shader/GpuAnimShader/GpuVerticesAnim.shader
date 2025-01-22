@@ -50,7 +50,8 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		_verticesAnimTex ("VerticesAnimTex" , 2D) = "white" {}
 		_frameIndex ("FrameIndex" , float) = 0
 		[Toggle] _isNormalTangent ("isNormalTangent", Int) = 0
-		[HideInInspector]_animationPixelLength ("AnimationPixelLength" , float) = 0
+		[HideInInspector]_texWidth ("TexWidth" , float) = 0
+		[HideInInspector]_texHeight ("TexHeight" , float) = 0
     }
 
         SubShader {
@@ -91,7 +92,8 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		CBUFFER_START(UnityPerMaterial)
 		#include "../HLSL/ToonLit/ToonLitCbuffer.hlsl"
 		float _frameIndex;
-		float _animationPixelLength;
+		float _texWidth;
+		float _texHeight;
 		CBUFFER_END
 
 		#ifdef INSTANCING_ON
@@ -138,10 +140,10 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 				UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex);
+				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex , _texHeight);
 #ifdef _ISNORMALTANGENT_ON
-				IN.normalOS = TransformNormals(IN.uv1 , _frameIndex , _animationPixelLength);
-				IN.tangentOS = TransformTangents(IN.uv1 , _frameIndex , _animationPixelLength);
+				IN.normalOS = TransformNormals(IN.uv1 , _frameIndex , _texWidth , _texHeight);
+				IN.tangentOS = TransformTangents(IN.uv1 , _frameIndex , _texWidth , _texHeight);
 #else
 #endif
 				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
@@ -180,7 +182,8 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		half _cutOut;
 		half4 _baseMap_ST;
 		float _frameIndex;
-		float _animationPixelLength;
+		float _texWidth;
+		float _texHeight;
 		CBUFFER_END
 
 		#ifdef INSTANCING_ON
@@ -232,10 +235,10 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 				UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex);
+				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex , _texHeight);
 #ifdef _ISNORMALTANGENT_ON
-				IN.normalOS = TransformNormals(IN.uv1 , _frameIndex , _animationPixelLength);
-				//IN.tangentOS = TransformTangents(IN.uv1 , _frameIndex , _animationPixelLength);
+				IN.normalOS = TransformNormals(IN.uv1 , _frameIndex , _texWidth , _texHeight);
+				//IN.tangentOS = TransformTangents(IN.uv1 , _frameIndex , _texWidth , _texHeight);
 #else
 #endif
 				float3 positionWS = TransformObjectToWorld(IN.positionOS.xyz);
@@ -266,7 +269,8 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		half _cutOut;
 		half4 _baseMap_ST;
 		float _frameIndex;
-		float _animationPixelLength;
+		float _texWidth;
+		float _texHeight;
 		CBUFFER_END
 
 		#ifdef INSTANCING_ON
@@ -304,7 +308,7 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 				UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex);
+				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex , _texHeight);
 
 				OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
 				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
@@ -332,7 +336,8 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		half4 _baseMap_ST;
 		half _normalStrength;
 		float _frameIndex;
-		float _animationPixelLength;
+		float _texWidth;
+		float _texHeight;
 		CBUFFER_END
 
 		#ifdef INSTANCING_ON
@@ -375,10 +380,10 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 				UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex);
+				IN.positionOS.xyz = TransformVertices(IN.positionOS.xyz , IN.uv1 , _frameIndex , _texHeight);
 #ifdef _ISNORMALTANGENT_ON
-				IN.normalOS = TransformNormals(IN.uv1 , _frameIndex , _animationPixelLength);
-				IN.tangentOS = TransformTangents(IN.uv1 , _frameIndex , _animationPixelLength);
+				IN.normalOS = TransformNormals(IN.uv1 , _frameIndex , _texWidth , _texHeight);
+				IN.tangentOS = TransformTangents(IN.uv1 , _frameIndex , _texWidth , _texHeight);
 #else
 #endif
 				OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);

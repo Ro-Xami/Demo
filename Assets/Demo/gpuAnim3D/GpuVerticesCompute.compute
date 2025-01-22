@@ -22,7 +22,6 @@ RWStructuredBuffer<RWData> rwData;
 //统一的变量
 uint inputCount;
 float fps;
-uint texheight;
 float4 cameraPlanes[6];
 float3 boxCenter;
 float3 boxExtents;
@@ -106,7 +105,7 @@ void GpuVerticesCompute (uint3 id : SV_DispatchThreadID)
 	rwData[id.x].timer += fps;
     rwData[id.x].timer = IsTimeOver(inputBuffer[id.x].isLoop, rwData[id.x].timer, inputBuffer[id.x].animationLength);
     IsChangAnimID(rwData[id.x].timer, (int)inputBuffer[id.x].animID, rwData[id.x].lastAnimID);
-    float frameIndex = (rwData[id.x].timer + inputBuffer[id.x].startFrame) / texheight;
+    float frameIndex = (rwData[id.x].timer + inputBuffer[id.x].startFrame);
 
 //输出Buffer
 	if(!IsCulled(boundVerts))
