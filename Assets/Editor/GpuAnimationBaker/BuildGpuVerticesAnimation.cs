@@ -76,9 +76,7 @@ public static class BuildGpuVerticesAnimation
 
         CreatNewMesh();
 
-        SetA2TData(prefab, clips, frame, isNormalTangent);
-
-        CreatA2T();
+        CreatA2T(prefab, clips, frame, isNormalTangent);
 
         newPrefab = new GameObject();
 
@@ -145,12 +143,7 @@ public static class BuildGpuVerticesAnimation
 
         Debug.Log("Baked Prefab successfully at" + prefabPath);
     }
-    public static void CreatA2T()
-    {
-        AssetDatabase.CreateAsset(A2T, A2TPath);
-        AssetDatabase.SaveAssets();
-    }
-    public static void SetA2TData(GameObject prefab, AnimationClip[] clips, int frame, bool isNormalTangent)
+    public static void CreatA2T(GameObject prefab, AnimationClip[] clips, int frame, bool isNormalTangent)
     {
         int previewAnimationLength = 0;
         Vector3[] originalVertices = mesh.vertices;
@@ -194,6 +187,8 @@ public static class BuildGpuVerticesAnimation
         }
 
         A2T.Apply();
+        AssetDatabase.CreateAsset(A2T, A2TPath);
+        AssetDatabase.SaveAssets();
     }
     public static void CreatNewMesh()
     {

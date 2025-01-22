@@ -4,7 +4,7 @@ using System.IO;
 
 public class BuildGpuBonesAnimation
 {
-    static SkinnedMeshRenderer[] skMesh;
+    static SkinnedMeshRenderer skMesh;
     static Mesh mesh;
     static Material mat;
     static Texture2D A2T;
@@ -24,18 +24,21 @@ public class BuildGpuBonesAnimation
     public static void BakeAnimToTexture2D(GameObject prefab, AnimationClip[] clips , int frame , bool isNormalTangent , string savePath , string savePrefabPath)
     {
         //-------------------------------------------------------------获取SK组件和Mesh----------------------------------------------------------
-        skMesh = prefab.GetComponentsInChildren<SkinnedMeshRenderer>();
-        if (skMesh == null || skMesh.Length == 0)
+        GameObject bakePrefab = Object.Instantiate(prefab);
+
+        SkinnedMeshRenderer[] skMeshs = bakePrefab.GetComponentsInChildren<SkinnedMeshRenderer>();
+        if (skMeshs == null || skMeshs.Length == 0)
         {
             Debug.LogError("Prefab has no SkinnedMeshRenderer!");
             return;
         }
-        if (skMesh.Length > 1)
+        if (skMeshs.Length > 1)
         {
             Debug.LogError("Prefab has more than 1 SkinnedMeshRenderer! Please combine Mesh to get better performance");
             return;
         }
-        mesh = Object.Instantiate(skMesh[0].sharedMesh);
+        skMesh = skMeshs[0];
+        mesh = Object.Instantiate(skMesh.sharedMesh);
 
         //------------------------------------------------------------------获取动画-------------------------------------------------------------
         if (clips.Length == 0)
@@ -56,45 +59,28 @@ public class BuildGpuBonesAnimation
         {
             animLength += (int)(frame * clips[i].length);
         }
-        
-        if (isNormalTangent)
-        {
-            texHeight = Mathf.NextPowerOfTwo(animLength * 3);
-        }
-        else
-        {
-            texHeight = Mathf.NextPowerOfTwo(animLength);
-        }
 
-        texWidth = Mathf.NextPowerOfTwo(skMesh[0].bones.Length * 3);
+        texHeight = animLength;
+        texWidth = skMesh.bones.Length * 3;
         A2T = new Texture2D(texWidth, texHeight, TextureFormat.RGBAHalf, false, true);
 
         //------------------------------------------------------------------保存路径-------------------------------------------------------------
         meshPath = savePath + "/" + prefab.name + "_VerticesAnimationMesh" + ".asset";
-        A2TPath = savePath + "/" + prefab.name + "_VerticesAnimationTexture" + ".exr";
+        A2TPath = savePath + "/" + prefab.name + "_VerticesAnimationTexture" + ".asset";
         matPath = savePath + "/" + prefab.name + "_VerticesAnimationMaterial" + ".mat";
         prefabPath = savePrefabPath + "/" + prefab.name + "_GpuAnim" + ".prefab";
 
-        //skMesh[0].bones
-
-
-
-
-
-
-
-
         CreatNewMesh();
 
-        SetA2TData(prefab, clips, frame, isNormalTangent);
+        CreatA2T(bakePrefab, clips, frame, isNormalTangent);
 
-        CreatA2T();
+        //newPrefab = new GameObject();
 
-        newPrefab = new GameObject();
+        //CreatMaterial(isNormalTangent);
 
-        CreatMaterial(isNormalTangent);
+        //CreatNewPrefab(clips , frame);
 
-        CreatNewPrefab(clips , frame);
+        Object.DestroyImmediate(bakePrefab);
     }
     public static void CreatAnimator(AnimationClip[] clips , int frame)
     {
@@ -154,25 +140,20 @@ public class BuildGpuBonesAnimation
 
         Debug.Log("Baked Prefab successfully at" + prefabPath);
     }
-    public static void CreatA2T()
+    public static void CreatA2T(GameObject bakePrefab, AnimationClip[] clips, int frame, bool isNormalTangent)
     {
-        File.WriteAllBytes(A2TPath, A2T.EncodeToEXR(Texture2D.EXRFlags.None));
-        AssetDatabase.Refresh();
-        TextureImporter texImporter = AssetImporter.GetAtPath(A2TPath) as TextureImporter;
-        texImporter.filterMode = FilterMode.Point;
-        texImporter.textureCompression = TextureImporterCompression.Uncompressed;
-        texImporter.wrapMode = TextureWrapMode.Clamp;
-        texImporter.mipmapEnabled = false;
-        texImporter.sRGBTexture = false;
-        texImporter.npotScale = TextureImporterNPOTScale.None;
-        int maxSize = GetMaxSize(texWidth, texHeight);
-        texImporter.maxTextureSize = maxSize;
-        texImporter.SaveAndReimport();
-    }
-    public static void SetA2TData(GameObject prefab, AnimationClip[] clips, int frame, bool isNormalTangent)
-    {
+        Vector3[] bonesPosition = new Vector3[skMesh.bones.Length];
+        Vector3[] bonesRotation = new Vector3[skMesh.bones.Length];
+        Vector3[] bonesScale = new Vector3[skMesh.bones.Length];
+
+        for (int i = 0; i < skMesh.bones.Length; i++)
+        {
+            bonesPosition[i] = skMesh.bones[i].position;
+            bonesRotation[i] = skMesh.bones[i].rotation.eulerAngles;
+            bonesScale[i] = skMesh.bones[i].lossyScale;
+        }
         int previewAnimationLength = 0;
-        Vector3[] originalVertices = mesh.vertices;
+
         for (int l = 0; l < clips.Length; l++)
         {
             if (l > 0)
@@ -184,67 +165,50 @@ public class BuildGpuBonesAnimation
             {
                 float time = (float)i / frame;
 
-                clips[l].SampleAnimation(prefab, time);
-                Mesh bakeMesh = Object.Instantiate<Mesh>(mesh);
-                skMesh[0].BakeMesh(bakeMesh);
-                Vector3[] bakeMeshVertices = bakeMesh.vertices;
+                clips[l].SampleAnimation(bakePrefab, time);
 
-                if (isNormalTangent)
+                for (int j = 0; j < skMesh.bones.Length; j++)
                 {
-                    Vector3[] bakeMeshNormals = bakeMesh.normals;
-                    Vector4[] bakeMeshTangents = bakeMesh.tangents;
+                    Vector3 offestPosition = skMesh.bones[j].position - bonesPosition[j];
+                    Color postionData = new Color(offestPosition.x, offestPosition.y, offestPosition.z, 1);
+                    A2T.SetPixel(j * 3, i + previewAnimationLength, postionData);
 
-                    for (int j = 0; j < bakeMeshVertices.Length; j++)
-                    {
-                        Vector3 offestPos = bakeMeshVertices[j] - originalVertices[j];
-                        Color verticesData = new Color(offestPos.x, offestPos.y, offestPos.z, 1);
-                        A2T.SetPixel(j, i + previewAnimationLength, verticesData);
+                    Vector3 offestRotation = skMesh.bones[j].rotation.eulerAngles - bonesRotation[j];
+                    Color rotationData = new Color(offestRotation.x, offestRotation.y, offestRotation.z, 1);
+                    A2T.SetPixel(j * 3 + 1, animLength + i + previewAnimationLength, rotationData);
 
-                        Color normalsData = new Color(bakeMeshNormals[j].x, bakeMeshNormals[j].y, bakeMeshNormals[j].z, 1);
-                        Color tangentsData = bakeMeshTangents[j];
-                        A2T.SetPixel(j, animLength + i + previewAnimationLength, normalsData);
-                        A2T.SetPixel(j, animLength * 2 + i + previewAnimationLength, tangentsData);
-                    }
+                    Vector3 offestScale = skMesh.bones[j].lossyScale - bonesScale[j];
+                    Color scaleData = new Color(offestScale.x, offestScale.y, offestScale.z, 1);
+                    A2T.SetPixel(j * 3 + 2, animLength * 2 + i + previewAnimationLength, scaleData);
                 }
-                else
-                {
-                    for (int j = 0; j < bakeMeshVertices.Length; j++)
-                    {
-                        Vector3 offestPos = bakeMeshVertices[j] - originalVertices[j];
-                        Color verticesData = new Color(offestPos.x, offestPos.y, offestPos.z, 1);
-                        A2T.SetPixel(j, i + previewAnimationLength, verticesData);
-                    }
-                }
-
             }
         }
 
         A2T.Apply();
+        AssetDatabase.CreateAsset(A2T, A2TPath);
+        AssetDatabase.SaveAssets();
     }
     public static void CreatNewMesh()
     {
-        float uvXOffset = (float)mesh.vertexCount / texWidth;
-
-        Vector2[] animUV = new Vector2[mesh.vertexCount];
-        for (int k = 0; k < mesh.vertexCount; k++)
+        Vector4[] bonesUV = new Vector4[mesh.vertexCount];
+        
+        for (int i = 0; i < mesh.vertexCount; i++)
         {
-            animUV[k] = new Vector2((float)k / mesh.vertexCount * uvXOffset, 0f);//防止输出整数类型
+            int bw0 = mesh.boneWeights[i].boneIndex0;
+            int bw1 = mesh.boneWeights[i].boneIndex1;
+            int bw2 = mesh.boneWeights[i].boneIndex2;
+            int bw3 = mesh.boneWeights[i].boneIndex3;
+            bonesUV[i] = new Vector4(bw0 / (float)skMesh.bones.Length, bw1 / (float)skMesh.bones.Length, bw2 / (float)skMesh.bones.Length, bw3 / (float)skMesh.bones.Length);
         }
-        mesh.SetUVs(1, animUV);
+        mesh.SetUVs(1, bonesUV);
+
+        Color[] verticesColor = new Color[mesh.vertexCount];
+        for (int i = 0; i < mesh.vertexCount; i++)
+        {
+            verticesColor[i] = new Color(mesh.boneWeights[i].weight0, mesh.boneWeights[i].weight1, mesh.boneWeights[i].weight2, mesh.boneWeights[i].weight3);
+        }
+        mesh.colors = verticesColor;
         AssetDatabase.CreateAsset(mesh, meshPath);
         AssetDatabase.SaveAssets();
-    }
-    public static int GetMaxSize(int x, int y)
-    {
-        int z;
-        if (x >= y)
-        {
-            z = x;
-        }
-        else
-        {
-            z = y;
-        }
-        return z;
     }
 }
