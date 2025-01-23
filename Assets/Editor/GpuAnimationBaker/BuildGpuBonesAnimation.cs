@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using UnityEngine.UIElements;
 
 public class BuildGpuBonesAnimation
 {
@@ -143,14 +144,15 @@ public class BuildGpuBonesAnimation
     public static void CreatA2T(GameObject bakePrefab, AnimationClip[] clips, int frame, bool isNormalTangent)
     {
         Vector3[] bonesPosition = new Vector3[skMesh.bones.Length];
-        Vector3[] bonesRotation = new Vector3[skMesh.bones.Length];
+        Quaternion[] bonesRotation = new Quaternion[skMesh.bones.Length];
         Vector3[] bonesScale = new Vector3[skMesh.bones.Length];
-
+        Matrix4x4[] bonesMatrix = new Matrix4x4[skMesh.bones.Length];
         for (int i = 0; i < skMesh.bones.Length; i++)
         {
             bonesPosition[i] = skMesh.bones[i].position;
-            bonesRotation[i] = skMesh.bones[i].rotation.eulerAngles;
+            bonesRotation[i] = skMesh.bones[i].rotation;
             bonesScale[i] = skMesh.bones[i].lossyScale;
+            bonesMatrix[i] = Matrix4x4.TRS(skMesh.bones[i].position, skMesh.bones[i].rotation, Vector3.one);
         }
         int previewAnimationLength = 0;
 
@@ -164,23 +166,29 @@ public class BuildGpuBonesAnimation
             for (int i = 0; i < (int)(frame * clips[l].length); i++)
             {
                 float time = (float)i / frame;
-
                 clips[l].SampleAnimation(bakePrefab, time);
 
                 for (int j = 0; j < skMesh.bones.Length; j++)
                 {
                     Vector3 offestPosition = skMesh.bones[j].position - bonesPosition[j];
-                    Color postionData = new Color(offestPosition.x, offestPosition.y, offestPosition.z, 1);
-                    A2T.SetPixel(j * 3, i + previewAnimationLength, postionData);
+                    //Vector3 offestPosition = Vector3.zero;
+                    Quaternion offestRotation = Quaternion.Inverse(bonesRotation[j]) * skMesh.bones[j].rotation;
+                    //Quaternion offestRotation = Quaternion.Euler(0,0,0);
+                    //Vector3 offestScale = new Vector3(skMesh.bones[j].lossyScale.x / bonesScale[j].x,
+                                                    //skMesh.bones[j].lossyScale.y / bonesScale[j].y,
+                                                    //skMesh.bones[j].lossyScale.z / bonesScale[j].z);
 
-                    Vector3 offestRotation = skMesh.bones[j].rotation.eulerAngles - bonesRotation[j];
-                    Color rotationData = new Color(offestRotation.x, offestRotation.y, offestRotation.z, 1);
-                    A2T.SetPixel(j * 3 + 1, animLength + i + previewAnimationLength, rotationData);
+                    Vector3 offestScale = Vector3.zero;
+                    Matrix4x4 trsMatrix = Matrix4x4.TRS(offestPosition, offestRotation, offestScale);
 
-                    Vector3 offestScale = skMesh.bones[j].lossyScale - bonesScale[j];
-                    Color scaleData = new Color(offestScale.x, offestScale.y, offestScale.z, 1);
-                    A2T.SetPixel(j * 3 + 2, animLength * 2 + i + previewAnimationLength, scaleData);
-                }
+                    Color m0 = new Color(trsMatrix.m00, trsMatrix.m01, trsMatrix.m02, trsMatrix.m03);
+                    Color m1 = new Color(trsMatrix.m10, trsMatrix.m11, trsMatrix.m12, trsMatrix.m13);
+                    Color m2 = new Color(trsMatrix.m20, trsMatrix.m21, trsMatrix.m22, trsMatrix.m23);
+
+                    A2T.SetPixel(j * 3, animLength * 2 + i + previewAnimationLength, m0);
+                    A2T.SetPixel(j * 3 + 1, animLength * 2 + i + previewAnimationLength, m1);
+                    A2T.SetPixel(j * 3 + 2, animLength * 2 + i + previewAnimationLength, m2);
+                } 
             }
         }
 
