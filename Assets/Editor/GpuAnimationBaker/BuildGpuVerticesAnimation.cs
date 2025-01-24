@@ -24,7 +24,9 @@ public static class BuildGpuVerticesAnimation
     public static void BakeAnimToTexture2D(GameObject prefab, AnimationClip[] clips , int frame , bool isNormalTangent , string savePath , string savePrefabPath)
     {
         //-------------------------------------------------------------获取SK组件和Mesh----------------------------------------------------------
-        skMesh = prefab.GetComponentsInChildren<SkinnedMeshRenderer>();
+        GameObject bakePrefab = Object.Instantiate(prefab);
+
+        skMesh = bakePrefab.GetComponentsInChildren<SkinnedMeshRenderer>();
         if (skMesh == null || skMesh.Length == 0)
         {
             Debug.LogError("Prefab has no SkinnedMeshRenderer!");
@@ -52,6 +54,7 @@ public static class BuildGpuVerticesAnimation
             }
         }
         //------------------------------------------------------------------创建纹理-------------------------------------------------------------
+        animLength = 0;
         for (int i = 0; i < clips.Length; i++)
         {
             animLength += (int)(frame * clips[i].length);
@@ -76,13 +79,15 @@ public static class BuildGpuVerticesAnimation
 
         CreatNewMesh(isNormalTangent);
 
-        CreatA2T(prefab, clips, frame, isNormalTangent);
+        CreatA2T(bakePrefab, clips, frame, isNormalTangent);
 
         newPrefab = new GameObject();
 
         CreatMaterial(isNormalTangent);
 
         CreatNewPrefab(clips , frame);
+
+        Object.DestroyImmediate(bakePrefab);
     }
     public static void CreatAnimator(AnimationClip[] clips , int frame)
     {

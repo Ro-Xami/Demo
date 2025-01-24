@@ -56,6 +56,7 @@ public class BuildGpuBonesAnimation
             }
         }
         //------------------------------------------------------------------创建纹理-------------------------------------------------------------
+        animLength = 0;
         for (int i = 0; i < clips.Length; i++)
         {
             animLength += (int)(frame * clips[i].length);
@@ -141,19 +142,13 @@ public class BuildGpuBonesAnimation
 
         Debug.Log("Baked Prefab successfully at" + prefabPath);
     }
+
+    /// <summary>
+    /// 创建纹理，烘焙动画的骨骼变换矩阵
+    /// </summary>
     public static void CreatA2T(GameObject bakePrefab, AnimationClip[] clips, int frame, bool isNormalTangent)
     {
-        Vector3[] bonesPosition = new Vector3[skMesh.bones.Length];
-        Quaternion[] bonesRotation = new Quaternion[skMesh.bones.Length];
-        Vector3[] bonesScale = new Vector3[skMesh.bones.Length];
-        Matrix4x4[] bonesMatrix = new Matrix4x4[skMesh.bones.Length];
-        for (int i = 0; i < skMesh.bones.Length; i++)
-        {
-            bonesPosition[i] = skMesh.bones[i].position;
-            bonesRotation[i] = skMesh.bones[i].rotation;
-            bonesScale[i] = skMesh.bones[i].lossyScale;
-            bonesMatrix[i] = Matrix4x4.TRS(skMesh.bones[i].position, skMesh.bones[i].rotation, Vector3.one);
-        }
+        //前一个动画的长度
         int previewAnimationLength = 0;
 
         for (int l = 0; l < clips.Length; l++)
@@ -165,55 +160,58 @@ public class BuildGpuBonesAnimation
 
             for (int i = 0; i < (int)(frame * clips[l].length); i++)
             {
+                //按照帧数采样动画
                 float time = (float)i / frame;
                 clips[l].SampleAnimation(bakePrefab, time);
 
                 for (int j = 0; j < skMesh.bones.Length; j++)
                 {
-                    Vector3 offestPosition = skMesh.bones[j].position - bonesPosition[j];
-                    //Vector3 offestPosition = Vector3.zero;
-                    Quaternion offestRotation = Quaternion.Inverse(bonesRotation[j]) * skMesh.bones[j].rotation;
-                    //Quaternion offestRotation = Quaternion.Euler(0,0,0);
-                    //Vector3 offestScale = new Vector3(skMesh.bones[j].lossyScale.x / bonesScale[j].x,
-                                                    //skMesh.bones[j].lossyScale.y / bonesScale[j].y,
-                                                    //skMesh.bones[j].lossyScale.z / bonesScale[j].z);
-
-                    Vector3 offestScale = Vector3.zero;
-                    Matrix4x4 trsMatrix = Matrix4x4.TRS(offestPosition, offestRotation, offestScale);
-
-                    Color m0 = new Color(trsMatrix.m00, trsMatrix.m01, trsMatrix.m02, trsMatrix.m03);
-                    Color m1 = new Color(trsMatrix.m10, trsMatrix.m11, trsMatrix.m12, trsMatrix.m13);
-                    Color m2 = new Color(trsMatrix.m20, trsMatrix.m21, trsMatrix.m22, trsMatrix.m23);
-
-                    A2T.SetPixel(j * 3, animLength * 2 + i + previewAnimationLength, m0);
-                    A2T.SetPixel(j * 3 + 1, animLength * 2 + i + previewAnimationLength, m1);
-                    A2T.SetPixel(j * 3 + 2, animLength * 2 + i + previewAnimationLength, m2);
+                    //获取采样动画的骨骼
+                    Transform bone = skMesh.bones[j];
+                    //获取TPose的骨骼
+                    Matrix4x4 bindPose = skMesh.sharedMesh.bindposes[j];
+                    // 计算骨骼当前帧的变换矩阵
+                    Matrix4x4 boneMatrix = bone.localToWorldMatrix * bindPose;
+                    // 将矩阵的每一行编码为颜色，存储到纹理中
+                    Color row0 = new Color(boneMatrix.m00, boneMatrix.m01, boneMatrix.m02, boneMatrix.m03);
+                    Color row1 = new Color(boneMatrix.m10, boneMatrix.m11, boneMatrix.m12, boneMatrix.m13);
+                    Color row2 = new Color(boneMatrix.m20, boneMatrix.m21, boneMatrix.m22, boneMatrix.m23);
+                    //纵向为动画的帧数，横向为当前帧的变换矩阵
+                    A2T.SetPixel(j * 3, animLength * 2 + i + previewAnimationLength, row0);
+                    A2T.SetPixel(j * 3 + 1, animLength * 2 + i + previewAnimationLength, row1);
+                    A2T.SetPixel(j * 3 + 2, animLength * 2 + i + previewAnimationLength, row2);
                 } 
             }
         }
-
         A2T.Apply();
         AssetDatabase.CreateAsset(A2T, A2TPath);
         AssetDatabase.SaveAssets();
     }
+
+    /// <summary>
+    /// 创建Mesh，储存骨骼索引和骨骼蒙皮权重到uv和顶点色（这两个是静态数据）
+    /// </summary>
     public static void CreatNewMesh()
     {
+        //存储骨骼索引到UV1的四个分量
         Vector4[] bonesUV = new Vector4[mesh.vertexCount];
-        
         for (int i = 0; i < mesh.vertexCount; i++)
         {
-            int bw0 = mesh.boneWeights[i].boneIndex0;
-            int bw1 = mesh.boneWeights[i].boneIndex1;
-            int bw2 = mesh.boneWeights[i].boneIndex2;
-            int bw3 = mesh.boneWeights[i].boneIndex3;
-            bonesUV[i] = new Vector4(bw0 * 3, bw1 * 3, bw2 * 3, bw3 * 3);
+            bonesUV[i] = new Vector4(mesh.boneWeights[i].boneIndex0 * 3,
+                                    mesh.boneWeights[i].boneIndex1 * 3,
+                                    mesh.boneWeights[i].boneIndex2 * 3,
+                                    mesh.boneWeights[i].boneIndex3 * 3);
         }
         mesh.SetUVs(1, bonesUV);
 
+        //存储骨骼蒙皮权重到顶点颜色
         Color[] verticesColor = new Color[mesh.vertexCount];
         for (int i = 0; i < mesh.vertexCount; i++)
         {
-            verticesColor[i] = new Color(mesh.boneWeights[i].weight0, mesh.boneWeights[i].weight1, mesh.boneWeights[i].weight2, mesh.boneWeights[i].weight3);
+            verticesColor[i] = new Color(mesh.boneWeights[i].weight0, 
+                                        mesh.boneWeights[i].weight1, 
+                                        mesh.boneWeights[i].weight2, 
+                                        mesh.boneWeights[i].weight3);
         }
         mesh.colors = verticesColor;
         AssetDatabase.CreateAsset(mesh, meshPath);

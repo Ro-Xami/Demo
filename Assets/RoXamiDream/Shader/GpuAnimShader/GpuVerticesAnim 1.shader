@@ -137,15 +137,12 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim_"
 				UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				float weights[4] = {IN.color.x , IN.color.y , IN.color.z , IN.color.w};
+				float weights[4] = {IN.color.x , IN.color.y , IN.color.z , (1 - IN.color.x - IN.color.y - IN.color.z)};
 				float bones[4] = {IN.uv1.x , IN.uv1.y , IN.uv1.z , IN.uv1.w};
-
-				float4 trs = weights[0] * _verticesAnimTex.Load(int3(bones[0] , _frameIndex , 0));
-				float3 testPos = float3(0,0,0);
+				float3 positionOUT = float3(0,0,0);
 				for(int i = 0 ; i < 4 ; i++)
 				{
-					if(bones[i] != 0)
-					{
+					
 						float4 m0 = _verticesAnimTex.Load(int3(bones[i] , _frameIndex , 0));
 						float4 m1 = _verticesAnimTex.Load(int3(bones[i] + 1 , _frameIndex , 0));
 						float4 m2 = _verticesAnimTex.Load(int3(bones[i] + 2 , _frameIndex , 0));
@@ -153,11 +150,11 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim_"
 
 						float4x4 boneMatrix = float4x4(m0 , m1 , m2 , m3);
 
-						testPos += weights[0] * mul(boneMatrix , float4(IN.positionOS.xyz , 1));
-					}
+						positionOUT += weights[i] * mul(boneMatrix , float4(IN.positionOS.xyz , 1)).xyz;
+					
 				}
-				IN.positionOS.xyz += testPos;
-				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
+				//IN.positionOS.xyz += boneOffest;
+				VertexPositionInputs positionInputs = GetVertexPositionInputs(positionOUT);
 				OUT.positionCS = positionInputs.positionCS;
 				OUT.positionWS = positionInputs.positionWS;
 
@@ -176,7 +173,7 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim_"
 			
 			half4 frag(Varyings IN) : SV_Target {
  
-				return IN.color.w;
+				return IN.color.x;
 			}
 			//#include_with_pragmas "../HLSL/ToonLit/ToonLitFragment.hlsl"			
 			
