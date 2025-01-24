@@ -46,10 +46,11 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		[Enum(UnityEngine.Rendering.CullMode)]_CullMode ("CullMode", float) = 2
 		[Enum(UnityEngine.Rendering.CompareFunction)]_ZTestMode ("ZTestMode", Float) = 4
 		//GpuAnim------------------------------------------------------------
-		[Header(Option)]
-		_verticesAnimTex ("VerticesAnimTex" , 2D) = "white" {}
-		_frameIndex ("FrameIndex" , float) = 0
+		[Header(GpuAnim)]
+		[Toggle] _IsBonesOrVertices ("isShadowCasterPass", Int) = 0
 		[Toggle] _isNormalTangent ("isNormalTangent", Int) = 0
+		_gpuAnimationMatrix ("GpuAnimationMatrix" , 2D) = "white"
+		_animationPlayedData ("AnimationPlayedData:frame,lastFrame,blend,0" , vector) = (0,0,0,0)	
     }
 
         SubShader {
@@ -59,6 +60,8 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		HLSLINCLUDE
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "../HLSL/GpuAnim/GpuVerticesAnimInput.hlsl"
+			#include "../HLSL/GpuAnim/GpuBonesAnimInput.hlsl"
 
 			#pragma shader_feature_local _ISNORMALMAP_ON
 			#pragma shader_feature_local _ISARMMAP_ON
@@ -66,13 +69,10 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 			#pragma shader_feature_local _ISBRUSH_ON
 			#pragma shader_feature_local _ISALPHACLIP_ON
 			#pragma shader_feature_local _ISRECEIVETOONSHADOW_ON
+			#pragma shader_feature_local _ISBONESORVERTICES_ON
 			#pragma shader_feature_local _ISNORMALTANGENT_ON
-
-			Texture2D<float4> _verticesAnimTex;
-
-			#include "../HLSL/GpuAnim/GpuVerticesAnimInput.hlsl"
 			
-
+			Texture2D<float4> _gpuAnimationMatrix;
 		ENDHLSL
 
 		Pass {
@@ -88,21 +88,21 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 
 		CBUFFER_START(UnityPerMaterial)
 		#include "../HLSL/ToonLit/ToonLitCbuffer.hlsl"
-		float _frameIndex;
+		float4 _animationPlayedData;
 		CBUFFER_END
 
 		#ifdef INSTANCING_ON
             UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-                UNITY_DEFINE_INSTANCED_PROP(float, _frameIndex)
+                UNITY_DEFINE_INSTANCED_PROP(float, _animationPlayedData)
             UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
-        #define _frameIndex              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _frameIndex)
+        #define _animationPlayedData              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _animationPlayedData)
         #endif
 
 			#pragma target 2.0
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_instancing
-			#include "../HLSL/GpuAnim/GpuVertices_MatrixFrameIndex.hlsl"
+			#include "../HLSL/GpuAnim/GpuAnimaStructuredBufferInput.hlsl"
             #pragma instancing_options procedural:setup
 			
 
@@ -111,7 +111,8 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 				float3 normalOS : NORMAL;
 				float4 tangentOS : TANGENT;
 				float2 uv : TEXCOORD0;
-				float2 uv1 : TEXCOORD1;
+				float4 uv1 : TEXCOORD1;
+				float4 color : COLOR;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -135,20 +136,38 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 				UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(_verticesAnimTex , IN.positionOS.xyz , IN.uv1 , _frameIndex);
-#ifdef _ISNORMALTANGENT_ON
-				IN.normalOS = TransformNormals(_verticesAnimTex , IN.uv1 , _frameIndex);
-				IN.tangentOS = TransformTangents(_verticesAnimTex , IN.uv1 , _frameIndex);
+				float3 positionOut = float3(0,0,0);
+				float3 normalOut = float3(0,0,0);
+				float4 tangentOut = float4(0,0,0,0);
+
+#ifdef _ISBONESORVERTICES_ON
+	#ifdef _ISNORMALTANGENT_ON
+					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.normalOS.xyz , IN.tangentOS
+											, IN.uv1 , IN.color.xyz , _animationPlayedData
+											, positionOut , normalOut , tangentOut);
+
+					VertexNormalInputs normalInputs = GetVertexNormalInputs(normalOut , tangentOut);
+					OUT.normalWS = normalInputs.normalWS;
+					OUT.tangentWS = normalInputs.tangentWS;
+					OUT.bitangentWS = normalInputs.bitangentWS;
+	#else
+					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.color.xyz , _animationPlayedData, positionOut);
+	#endif
 #else
+					positionOut = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1.xy , _animationPlayedData);
+	#ifdef _ISNORMALTANGENT_ON
+					normalOut = TransformNormals(_gpuAnimationMatrix , IN.uv1.xy , _animationPlayedData);
+					tangentOut = TransformTangents(_gpuAnimationMatrix , IN.uv1.xy , _animationPlayedData);
+
+					VertexNormalInputs normalInputs = GetVertexNormalInputs(normalOut , tangentOut);
+					OUT.normalWS = normalInputs.normalWS;
+					OUT.tangentWS = normalInputs.tangentWS;
+					OUT.bitangentWS = normalInputs.bitangentWS;
+	#endif
 #endif
-				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
+				VertexPositionInputs positionInputs = GetVertexPositionInputs(positionOut);
 				OUT.positionCS = positionInputs.positionCS;
 				OUT.positionWS = positionInputs.positionWS;
-
-				VertexNormalInputs normalInputs = GetVertexNormalInputs(IN.normalOS , IN.tangentOS);
-				OUT.normalWS = normalInputs.normalWS;
-				OUT.tangentWS = normalInputs.tangentWS;
-				OUT.bitangentWS = normalInputs.bitangentWS;
 
 				OUT.viewWS = SafeNormalize(GetCameraPositionWS() - OUT.positionWS);
 				OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
@@ -162,233 +181,233 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 			ENDHLSL
 		}
 
-		Pass
-        {
-			Name "ShadowCaster"
-            Tags{ "LightMode" = "ShadowCaster" }
+//		Pass
+//        {
+//			Name "ShadowCaster"
+//            Tags{ "LightMode" = "ShadowCaster" }
 
-			ZWrite On
-            ZTest LEqual
-            ColorMask 0
+//			ZWrite On
+//            ZTest LEqual
+//            ColorMask 0
 
-            HLSLPROGRAM
+//            HLSLPROGRAM
 
-			CBUFFER_START(UnityPerMaterial)
-		half _cutOut;
-		half4 _baseMap_ST;
-		float _frameIndex;
-		CBUFFER_END
+//			CBUFFER_START(UnityPerMaterial)
+//		half _cutOut;
+//		half4 _baseMap_ST;
+//		float4 _animationPlayedData;
+//		CBUFFER_END
 
-		#ifdef INSTANCING_ON
-            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-                UNITY_DEFINE_INSTANCED_PROP(float, _frameIndex)
-            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
-        #define _frameIndex              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _frameIndex)
-        #endif
+//		#ifdef INSTANCING_ON
+//            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+//                UNITY_DEFINE_INSTANCED_PROP(float, _animationPlayedData)
+//            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+//        #define _animationPlayedData              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _animationPlayedData)
+//        #endif
 
-			#pragma target 2.0
-			#pragma vertex vert
-            #pragma fragment frag
-			#pragma multi_compile_instancing
-			#include "../HLSL/GpuAnim/GpuVertices_MatrixFrameIndex.hlsl"
-            #pragma instancing_options procedural:setup
+//			#pragma target 2.0
+//			#pragma vertex vert
+//            #pragma fragment frag
+//			#pragma multi_compile_instancing
+//			#include "../HLSL/GpuAnim/GpuAnimaStructuredBufferInput.hlsl"
+//            #pragma instancing_options procedural:setup
 
-			struct Attributes {
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float2 uv : TEXCOORD0;
-				float2 uv1 : TEXCOORD1;
+//			struct Attributes {
+//				float4 positionOS : POSITION;
+//				float3 normalOS : NORMAL;
+//				float2 uv : TEXCOORD0;
+//				float2 uv1 : TEXCOORD1;
 
-				UNITY_VERTEX_INPUT_INSTANCE_ID
-			};
+//				UNITY_VERTEX_INPUT_INSTANCE_ID
+//			};
  
-			struct Varyings {
-				float4 positionCS : SV_POSITION;
-				float2 uv : TEXCOORD0;
+//			struct Varyings {
+//				float4 positionCS : SV_POSITION;
+//				float2 uv : TEXCOORD0;
 
-				UNITY_VERTEX_INPUT_INSTANCE_ID
-			};
+//				UNITY_VERTEX_INPUT_INSTANCE_ID
+//			};
 
-			float3 _LightDirection;
-            half4 _ShadowBias; // x: depth bias, y: normal bias
-            half4 _MainLightShadowParams;  // (x: shadowStrength, y: 1.0 if soft shadows, 0.0 otherwise)
+//			float3 _LightDirection;
+//            half4 _ShadowBias; // x: depth bias, y: normal bias
+//            half4 _MainLightShadowParams;  // (x: shadowStrength, y: 1.0 if soft shadows, 0.0 otherwise)
 
-            float3 ApplyShadowBias(float3 positionWS, float3 normalWS, float3 lightDirection)
-            {
-                float invNdotL = 1.0 - saturate(dot(lightDirection, normalWS));
-                float scale = invNdotL * _ShadowBias.y;
-                positionWS = lightDirection * _ShadowBias.xxx + positionWS;
-                positionWS = normalWS * scale.xxx + positionWS;
-                return positionWS;
-            }
+//            float3 ApplyShadowBias(float3 positionWS, float3 normalWS, float3 lightDirection)
+//            {
+//                float invNdotL = 1.0 - saturate(dot(lightDirection, normalWS));
+//                float scale = invNdotL * _ShadowBias.y;
+//                positionWS = lightDirection * _ShadowBias.xxx + positionWS;
+//                positionWS = normalWS * scale.xxx + positionWS;
+//                return positionWS;
+//            }
 
-			Varyings vert(Attributes IN)
-			{
-				Varyings OUT = (Varyings)0;
-				UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
+//			Varyings vert(Attributes IN)
+//			{
+//				Varyings OUT = (Varyings)0;
+//				UNITY_SETUP_INSTANCE_ID(IN);
+//                UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(_verticesAnimTex , IN.positionOS.xyz , IN.uv1 , _frameIndex);
-#ifdef _ISNORMALTANGENT_ON
-				IN.normalOS = TransformNormals(_verticesAnimTex , IN.uv1 , _frameIndex);
-				//IN.tangentOS = TransformTangents(_verticesAnimTex , IN.uv1 , _frameIndex);
-#else
-#endif
-				float3 positionWS = TransformObjectToWorld(IN.positionOS.xyz);
-				float3 normalWS = TransformObjectToWorldNormal(IN.normalOS);
-				positionWS = ApplyShadowBias(positionWS, normalWS, _LightDirection);
-                OUT.positionCS = TransformWorldToHClip(positionWS);
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+//				IN.positionOS.xyz = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , _animationPlayedData);
+//#ifdef _ISNORMALTANGENT_ON
+//				IN.normalOS = TransformNormals(_gpuAnimationMatrix , IN.uv1 , _animationPlayedData);
+//				//IN.tangentOS = TransformTangents(_gpuAnimationMatrix , IN.uv1 , _animationPlayedData);
+//#else
+//#endif
+//				float3 positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+//				float3 normalWS = TransformObjectToWorldNormal(IN.normalOS);
+//				positionWS = ApplyShadowBias(positionWS, normalWS, _LightDirection);
+//                OUT.positionCS = TransformWorldToHClip(positionWS);
+//				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
 
-				return OUT;
-			}
+//				return OUT;
+//			}
 
-			#include "../HLSL/ToonLit/ToonPassShadowCastFragment.hlsl"
+//			#include "../HLSL/ToonLit/ToonPassShadowCastFragment.hlsl"
 		
-            ENDHLSL
-        }
+//            ENDHLSL
+//        }
 
-		Pass
-        {	
-			Name "DepthOnly"
-            Tags{ "LightMode" = "DepthOnly" }
+//		Pass
+//        {	
+//			Name "DepthOnly"
+//            Tags{ "LightMode" = "DepthOnly" }
 
-			ZWrite On
-            ColorMask R
+//			ZWrite On
+//            ColorMask R
 
-            HLSLPROGRAM
+//            HLSLPROGRAM
 
-			CBUFFER_START(UnityPerMaterial)
-		half _cutOut;
-		half4 _baseMap_ST;
-		float _frameIndex;
-		CBUFFER_END
+//			CBUFFER_START(UnityPerMaterial)
+//		half _cutOut;
+//		half4 _baseMap_ST;
+//		float4 _animationPlayedData;
+//		CBUFFER_END
 
-		#ifdef INSTANCING_ON
-            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-                UNITY_DEFINE_INSTANCED_PROP(float, _frameIndex)
-            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
-        #define _frameIndex              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _frameIndex)
-        #endif
+//		#ifdef INSTANCING_ON
+//            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+//                UNITY_DEFINE_INSTANCED_PROP(float, _animationPlayedData)
+//            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+//        #define _animationPlayedData              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _animationPlayedData)
+//        #endif
 
-			#pragma target 2.0
-            #pragma vertex vert
-            #pragma fragment frag
-			#pragma multi_compile_instancing
-			#include "../HLSL/GpuAnim/GpuVertices_MatrixFrameIndex.hlsl"
-            #pragma instancing_options procedural:setup
+//			#pragma target 2.0
+//            #pragma vertex vert
+//            #pragma fragment frag
+//			#pragma multi_compile_instancing
+//			#include "../HLSL/GpuAnim/GpuAnimaStructuredBufferInput.hlsl"
+//            #pragma instancing_options procedural:setup
 
-			struct Attributes {
-				float4 positionOS : POSITION;
-				float2 uv : TEXCOORD0;
-				float2 uv1 : TEXCOORD1;
+//			struct Attributes {
+//				float4 positionOS : POSITION;
+//				float2 uv : TEXCOORD0;
+//				float2 uv1 : TEXCOORD1;
 
-				UNITY_VERTEX_INPUT_INSTANCE_ID
-			};
+//				UNITY_VERTEX_INPUT_INSTANCE_ID
+//			};
  
-			struct Varyings {
-				float4 positionCS : SV_POSITION;
-				float2 uv : TEXCOORD0;
+//			struct Varyings {
+//				float4 positionCS : SV_POSITION;
+//				float2 uv : TEXCOORD0;
 
-				UNITY_VERTEX_INPUT_INSTANCE_ID
-			};
+//				UNITY_VERTEX_INPUT_INSTANCE_ID
+//			};
 
-			Varyings vert(Attributes IN)
-			{
-				Varyings OUT = (Varyings)0;
-				UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
+//			Varyings vert(Attributes IN)
+//			{
+//				Varyings OUT = (Varyings)0;
+//				UNITY_SETUP_INSTANCE_ID(IN);
+//                UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(_verticesAnimTex , IN.positionOS.xyz , IN.uv1 , _frameIndex);
+//				IN.positionOS.xyz = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , _animationPlayedData);
 
-				OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+//				OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+//				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
 
-				return OUT;
-			}
+//				return OUT;
+//			}
 
-			#include "../HLSL/ToonLit/ToonPassDepthOnlyFragment.hlsl"
+//			#include "../HLSL/ToonLit/ToonPassDepthOnlyFragment.hlsl"
 
-            ENDHLSL
-        }
+//            ENDHLSL
+//        }
 
-		Pass
-        {
-			Name "DepthNormals"
-            Tags{ "LightMode" = "DepthNormals" }
+//		Pass
+//        {
+//			Name "DepthNormals"
+//            Tags{ "LightMode" = "DepthNormals" }
 
-			ZWrite On
-            Cull[_Cull]
+//			ZWrite On
+//            Cull[_Cull]
 
-            HLSLPROGRAM
+//            HLSLPROGRAM
 
-			CBUFFER_START(UnityPerMaterial)
-		half _cutOut;
-		half4 _baseMap_ST;
-		half _normalStrength;
-		float _frameIndex;
-		CBUFFER_END
+//			CBUFFER_START(UnityPerMaterial)
+//		half _cutOut;
+//		half4 _baseMap_ST;
+//		half _normalStrength;
+//		float4 _animationPlayedData;
+//		CBUFFER_END
 
-		#ifdef INSTANCING_ON
-            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-                UNITY_DEFINE_INSTANCED_PROP(float, _frameIndex)
-            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
-        #define _frameIndex              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _frameIndex)
-        #endif
+//		#ifdef INSTANCING_ON
+//            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+//                UNITY_DEFINE_INSTANCED_PROP(float, _animationPlayedData)
+//            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+//        #define _animationPlayedData              UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _animationPlayedData)
+//        #endif
 
-			#pragma target 2.0
-            #pragma vertex vert
-            #pragma fragment frag
-			#pragma multi_compile_instancing
-			#include "../HLSL/GpuAnim/GpuVertices_MatrixFrameIndex.hlsl"
-            #pragma instancing_options procedural:setup
+//			#pragma target 2.0
+//            #pragma vertex vert
+//            #pragma fragment frag
+//			#pragma multi_compile_instancing
+//			#include "../HLSL/GpuAnim/GpuAnimaStructuredBufferInput.hlsl"
+//            #pragma instancing_options procedural:setup
 
-			struct Attributes {
-				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
-				float4 tangentOS : TANGENT;
-				float2 uv : TEXCOORD0;
-				float2 uv1 : TEXCOORD1;
+//			struct Attributes {
+//				float4 positionOS : POSITION;
+//				float3 normalOS : NORMAL;
+//				float4 tangentOS : TANGENT;
+//				float2 uv : TEXCOORD0;
+//				float2 uv1 : TEXCOORD1;
 
-				UNITY_VERTEX_INPUT_INSTANCE_ID
-			};
+//				UNITY_VERTEX_INPUT_INSTANCE_ID
+//			};
  
-			struct Varyings {
-				float4 positionCS : SV_POSITION;
-				float2 uv : TEXCOORD;
-				float3 normalWS : TEXCOORD1;
-				float3 tangentWS : TEXCOORD2;
-				float3 bitangentWS : TEXCOORD3;
+//			struct Varyings {
+//				float4 positionCS : SV_POSITION;
+//				float2 uv : TEXCOORD;
+//				float3 normalWS : TEXCOORD1;
+//				float3 tangentWS : TEXCOORD2;
+//				float3 bitangentWS : TEXCOORD3;
 
-				UNITY_VERTEX_INPUT_INSTANCE_ID
-			};
+//				UNITY_VERTEX_INPUT_INSTANCE_ID
+//			};
 
-			Varyings vert(Attributes IN)
-			{
-				Varyings OUT = (Varyings)0;
-				UNITY_SETUP_INSTANCE_ID(IN);
-                UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
+//			Varyings vert(Attributes IN)
+//			{
+//				Varyings OUT = (Varyings)0;
+//				UNITY_SETUP_INSTANCE_ID(IN);
+//                UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
-				IN.positionOS.xyz = TransformVertices(_verticesAnimTex , IN.positionOS.xyz , IN.uv1 , _frameIndex);
-#ifdef _ISNORMALTANGENT_ON
-				IN.normalOS = TransformNormals(_verticesAnimTex , IN.uv1 , _frameIndex);
-				IN.tangentOS = TransformTangents(_verticesAnimTex , IN.uv1 , _frameIndex);
-#else
-#endif
-				OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
-				VertexNormalInputs normalInputs = GetVertexNormalInputs(IN.normalOS.xyz , IN.tangentOS);
-				OUT.normalWS = normalInputs.normalWS;
-				OUT.tangentWS = normalInputs.tangentWS;
-				OUT.bitangentWS = normalInputs.bitangentWS;
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+//				IN.positionOS.xyz = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , _animationPlayedData);
+//#ifdef _ISNORMALTANGENT_ON
+//				IN.normalOS = TransformNormals(_gpuAnimationMatrix , IN.uv1 , _animationPlayedData);
+//				IN.tangentOS = TransformTangents(_gpuAnimationMatrix , IN.uv1 , _animationPlayedData);
+//#else
+//#endif
+//				OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+//				VertexNormalInputs normalInputs = GetVertexNormalInputs(IN.normalOS.xyz , IN.tangentOS);
+//				OUT.normalWS = normalInputs.normalWS;
+//				OUT.tangentWS = normalInputs.tangentWS;
+//				OUT.bitangentWS = normalInputs.bitangentWS;
+//				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
 
-				return OUT;
-			}
+//				return OUT;
+//			}
 
-			#include "../HLSL/ToonLit/ToonPassDepthNormalsFragment.hlsl"
+//			#include "../HLSL/ToonLit/ToonPassDepthNormalsFragment.hlsl"
 
-            ENDHLSL
-        }
+//            ENDHLSL
+//        }
     }
-	CustomEditor "ToonLitShaderGUI"
+	//CustomEditor "ToonLitShaderGUI"
 }
