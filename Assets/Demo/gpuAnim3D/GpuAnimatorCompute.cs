@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class GpuVerticesAnimatorCompute : MonoBehaviour
+public class GpuAnimatorCompute : MonoBehaviour
 {
     public int frame = 60;
     public int instanceMaxCount;
     public Bounds drawBounds;
-    public GpuVerticesAnimations[] animations;
+    public GpuAnimations[] animations;
     public ComputeShader compute;
 
     private int instanceCount;
@@ -52,7 +52,7 @@ public class GpuVerticesAnimatorCompute : MonoBehaviour
         material = this.GetComponent<MeshRenderer>().sharedMaterial;
         bounds = this.GetComponent<MeshRenderer>().bounds;
         //初始化ComputeShader变量
-        kernel = compute.FindKernel("GpuVerticesCompute");
+        kernel = compute.FindKernel("GpuAnimationRenderer");
         inputBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) * 16 + sizeof(int) + sizeof(int) + sizeof(float) + sizeof(float));
         outputBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) * 16, ComputeBufferType.Append);
         rwBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) + sizeof(int) , ComputeBufferType.Raw);

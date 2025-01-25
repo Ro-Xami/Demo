@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GpuVerticesAnimatorMono : MonoBehaviour
+public class GpuAnimatorMono : MonoBehaviour
 {
     public int frame = 60;
-    public GpuVerticesAnimations[] animations;
+    public GpuAnimations[] animations;
 
     private MaterialPropertyBlock propertyBlock;
     private Mesh mesh;

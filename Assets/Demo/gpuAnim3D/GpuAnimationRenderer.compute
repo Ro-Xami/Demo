@@ -1,4 +1,4 @@
-﻿#pragma kernel GpuVerticesCompute
+﻿#pragma kernel GpuAnimationRenderer
 
 //对应每个对象且需要赋值的变量
 struct GpuVerticesDataInput
@@ -84,7 +84,7 @@ void IsChangAnimID(float time , int current , int last)
 
 //核函数
 [numthreads(64,1,1)]
-void GpuVerticesCompute (uint3 id : SV_DispatchThreadID)
+void GpuAnimationRenderer (uint3 id : SV_DispatchThreadID)
 {
 	if (id.x >= inputCount) return;
 //视锥体剔除

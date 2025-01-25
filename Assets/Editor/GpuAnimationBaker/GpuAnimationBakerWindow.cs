@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-public class GpuAnimationBaker3D : EditorWindow
+public class GpuAnimationBakerWindow : EditorWindow
 {
     public GameObject prefab;
 
@@ -23,7 +23,7 @@ public class GpuAnimationBaker3D : EditorWindow
     [MenuItem("RoXamiTools/GpuAnimBaker3D")]
     public static void ShowWindow()
     {
-        GetWindow<GpuAnimationBaker3D>("GpuAnimBaker3D");
+        GetWindow<GpuAnimationBakerWindow>("GpuAnimBaker3D");
     }
 
     protected void OnEnable()

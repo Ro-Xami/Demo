@@ -14,15 +14,15 @@ public class GennerateTest : MonoBehaviour
     public int totalNumber;
     public int firstAnimID;
 
-    private GpuVerticesAnimatorMono animatorMono;
-    private GpuVerticesAnimatorCompute animatorCompute;
+    private GpuAnimatorMono animatorMono;
+    private GpuAnimatorCompute animatorCompute;
     private List<int> animIDList = new List<int>();
     private List<Matrix4x4> matrixList = new List<Matrix4x4>();
 
     void Start()
     {
-        animatorMono = this.GetComponent<GpuVerticesAnimatorMono>();
-        animatorCompute = this.GetComponent<GpuVerticesAnimatorCompute>();
+        animatorMono = this.GetComponent<GpuAnimatorMono>();
+        animatorCompute = this.GetComponent<GpuAnimatorCompute>();
         RadomMatrix(startNumber, range);
     }
 

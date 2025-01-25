@@ -18,9 +18,9 @@ public static class BuildGpuVerticesAnimation
     static string matPath;
     static string prefabPath;
 
-    static GpuVerticesAnimatorMono mono;
-    static GpuVerticesAnimatorCompute compute;
-    static GpuVerticesAnimations[] gpuVerticesAnimations;
+    static GpuAnimatorMono mono;
+    static GpuAnimatorCompute compute;
+    static GpuAnimations[] GpuAnimations;
     public static void BakeAnimToTexture2D(GameObject prefab, AnimationClip[] clips , int frame , bool isNormalTangent , string savePath , string savePrefabPath)
     {
         //-------------------------------------------------------------获取SK组件和Mesh----------------------------------------------------------
@@ -92,19 +92,19 @@ public static class BuildGpuVerticesAnimation
     public static void CreatAnimator(AnimationClip[] clips , int frame)
     {
         int startFtame = 0;
-        gpuVerticesAnimations = new GpuVerticesAnimations[clips.Length];
+        GpuAnimations = new GpuAnimations[clips.Length];
         for (int h = 0; h < clips.Length; h++)
         {
-            gpuVerticesAnimations[h] = new GpuVerticesAnimations();
-            gpuVerticesAnimations[h].animtionName = clips[h].name;
+            GpuAnimations[h] = new GpuAnimations();
+            GpuAnimations[h].animtionName = clips[h].name;
             if (h > 0) { startFtame += (int)(frame * clips[h - 1].length); }
-            gpuVerticesAnimations[h].startFrame = startFtame;
-            gpuVerticesAnimations[h].frameLength = (int)(frame * clips[h].length);
-            gpuVerticesAnimations[h].isLoop = clips[h].isLooping;
+            GpuAnimations[h].startFrame = startFtame;
+            GpuAnimations[h].frameLength = (int)(frame * clips[h].length);
+            GpuAnimations[h].isLoop = clips[h].isLooping;
         }
-        mono.animations = gpuVerticesAnimations;
+        mono.animations = GpuAnimations;
         mono.frame = frame;
-        compute.animations = gpuVerticesAnimations;
+        compute.animations = GpuAnimations;
         compute.frame = frame;
     }
     public static void CreatMaterial(bool isNormalTangent)
@@ -133,8 +133,8 @@ public static class BuildGpuVerticesAnimation
         AssetDatabase.SaveAssets();
         newPrefab.AddComponent<MeshFilter>().mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
         newPrefab.AddComponent<MeshRenderer>().material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
-        mono = newPrefab.AddComponent<GpuVerticesAnimatorMono>();
-        compute = newPrefab.AddComponent<GpuVerticesAnimatorCompute>();
+        mono = newPrefab.AddComponent<GpuAnimatorMono>();
+        compute = newPrefab.AddComponent<GpuAnimatorCompute>();
 
         CreatAnimator(clips, frame);
 
@@ -198,7 +198,6 @@ public static class BuildGpuVerticesAnimation
         Vector2[] animUV = new Vector2[mesh.vertexCount];
         for (int k = 0; k < mesh.vertexCount; k++)
         {
-            //animUV[k] = new Vector2((k + 0.5f / 3f)/ mesh.vertexCount, 0.5f / texHeight);//防止输出整数类型
             if (isNormalTangent)
             {
                 animUV[k] = new Vector2(k * 3, 0);

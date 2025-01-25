@@ -1,4 +1,4 @@
-Shader "RoXami/GpuAnim/GpuVerticesAnim"
+Shader "RoXami/GpuAnim"
 {
     Properties
     {
@@ -47,7 +47,7 @@ Shader "RoXami/GpuAnim/GpuVerticesAnim"
 		[Enum(UnityEngine.Rendering.CompareFunction)]_ZTestMode ("ZTestMode", Float) = 4
 		//GpuAnim------------------------------------------------------------
 		[Header(GpuAnim)]
-		[Toggle] _IsBonesOrVertices ("isShadowCasterPass", Int) = 0
+		[Toggle] _IsBonesOrVertices ("IsBonesOrVertices", Int) = 0
 		[Toggle] _isNormalTangent ("isNormalTangent", Int) = 0
 		_gpuAnimationMatrix ("GpuAnimationMatrix" , 2D) = "white"
 		_animationPlayedData ("AnimationPlayedData:frame,lastFrame,blend,0" , vector) = (0,0,0,0)	

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 [Serializable]
-public class GpuVerticesAnimations
+public class GpuAnimations
 {
     [HideInInspector] public string animtionName;
     public int startFrame = 0;

@@ -1,9 +1,7 @@
 using UnityEngine;
 using UnityEditor;
-using System.IO;
-using UnityEngine.UIElements;
 
-public class BuildGpuBonesAnimation
+public static class BuildGpuBonesAnimation
 {
     static SkinnedMeshRenderer skMesh;
     static Mesh mesh;
@@ -19,43 +17,36 @@ public class BuildGpuBonesAnimation
     static string matPath;
     static string prefabPath;
 
-    static GpuVerticesAnimatorMono mono;
-    static GpuVerticesAnimatorCompute compute;
-    static GpuVerticesAnimations[] gpuVerticesAnimations;
+    static GpuAnimatorMono mono;
+    static GpuAnimatorCompute compute;
+    static GpuAnimations[] GpuAnimations;
     public static void BakeAnimToTexture2D(GameObject prefab, AnimationClip[] clips , int frame , bool isNormalTangent , string savePath , string savePrefabPath)
     {
-        //-------------------------------------------------------------获取SK组件和Mesh----------------------------------------------------------
         GameObject bakePrefab = Object.Instantiate(prefab);
 
-        SkinnedMeshRenderer[] skMeshs = bakePrefab.GetComponentsInChildren<SkinnedMeshRenderer>();
-        if (skMeshs == null || skMeshs.Length == 0)
-        {
-            Debug.LogError("Prefab has no SkinnedMeshRenderer!");
-            return;
-        }
-        if (skMeshs.Length > 1)
-        {
-            Debug.LogError("Prefab has more than 1 SkinnedMeshRenderer! Please combine Mesh to get better performance");
-            return;
-        }
-        skMesh = skMeshs[0];
-        mesh = Object.Instantiate(skMesh.sharedMesh);
+        GetSavePath(prefab, savePath, savePrefabPath);
 
-        //------------------------------------------------------------------获取动画-------------------------------------------------------------
-        if (clips.Length == 0)
-        {
-            Debug.LogError("There is no AnimationClips!");
-            return;
-        }
-        for (int i = 0; i < clips.Length; i++)
-        {
-            if (clips[i] == null)
-            {
-                Debug.LogError("There is a List has no AnimationClip!");
-                return;
-            }
-        }
-        //------------------------------------------------------------------创建纹理-------------------------------------------------------------
+        GetAnimationsData(clips, bakePrefab);
+
+        CreatNewMesh();
+
+        NewTexture(clips, frame);      
+   
+        CreatA2T(bakePrefab, clips, frame, isNormalTangent);
+
+        CreatMaterial(isNormalTangent);
+
+        CreatNewPrefab(clips, frame);
+
+        Object.DestroyImmediate(bakePrefab);
+        Object.DestroyImmediate(newPrefab);
+    }
+
+    /// <summary>
+    /// New一个纹理
+    /// </summary>
+    public static void NewTexture(AnimationClip[] clips, int frame)
+    {
         animLength = 0;
         for (int i = 0; i < clips.Length; i++)
         {
@@ -65,83 +56,8 @@ public class BuildGpuBonesAnimation
         texHeight = animLength;
         texWidth = skMesh.bones.Length * 3;
         A2T = new Texture2D(texWidth, texHeight, TextureFormat.RGBAHalf, false, true);
-
-        //------------------------------------------------------------------保存路径-------------------------------------------------------------
-        meshPath = savePath + "/" + prefab.name + "_VerticesAnimationMesh" + ".asset";
-        A2TPath = savePath + "/" + prefab.name + "_VerticesAnimationTexture" + ".asset";
-        matPath = savePath + "/" + prefab.name + "_VerticesAnimationMaterial" + ".mat";
-        prefabPath = savePrefabPath + "/" + prefab.name + "_GpuAnim" + ".prefab";
-
-        CreatNewMesh();
-
-        CreatA2T(bakePrefab, clips, frame, isNormalTangent);
-
-        //newPrefab = new GameObject();
-
-        //CreatMaterial(isNormalTangent);
-
-        //CreatNewPrefab(clips , frame);
-
-        Object.DestroyImmediate(bakePrefab);
     }
-    public static void CreatAnimator(AnimationClip[] clips , int frame)
-    {
-        int startFtame = 0;
-        gpuVerticesAnimations = new GpuVerticesAnimations[clips.Length];
-        for (int h = 0; h < clips.Length; h++)
-        {
-            gpuVerticesAnimations[h] = new GpuVerticesAnimations();
-            gpuVerticesAnimations[h].animtionName = clips[h].name;
-            if (h > 0) { startFtame += (int)(frame * clips[h - 1].length); }
-            gpuVerticesAnimations[h].startFrame = startFtame;
-            gpuVerticesAnimations[h].frameLength = (int)(frame * clips[h].length);
-            gpuVerticesAnimations[h].isLoop = clips[h].isLooping;
-        }
-        mono.animations = gpuVerticesAnimations;
-        mono.frame = frame;
-        compute.animations = gpuVerticesAnimations;
-        compute.frame = frame;
-    }
-    public static void CreatMaterial(bool isNormalTangent)
-    {
-        var GpuVertexAnimShader = Shader.Find("RoXami/GpuAnim/GpuVerticesAnim");
-        if (GpuVertexAnimShader == null)
-        {
-            Object.DestroyImmediate(newPrefab);
-            Debug.LogError("Can't find GpuVertexAnim Shader to creat Material!");
-            return;
-        }
 
-        mat = new Material(GpuVertexAnimShader);
-        if (isNormalTangent)
-        {
-            mat.SetFloat("_isNormalTangent", 1);
-            mat.SetFloat("_animationPixelLength", (float)animLength / texHeight);
-        }
-        mat.SetTexture("_verticesAnimTex", AssetDatabase.LoadAssetAtPath<Texture2D>(A2TPath));
-        mat.enableInstancing = true;
-        AssetDatabase.CreateAsset(mat, matPath);
-        Debug.Log("Baked A2T File successfully at" + matPath);
-    }
-    public static void CreatNewPrefab(AnimationClip[] clips, int frame)
-    {
-
-        AssetDatabase.SaveAssets();
-        newPrefab.AddComponent<MeshFilter>().mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
-        newPrefab.AddComponent<MeshRenderer>().material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
-        mono = newPrefab.AddComponent<GpuVerticesAnimatorMono>();
-        compute = newPrefab.AddComponent<GpuVerticesAnimatorCompute>();
-
-        CreatAnimator(clips, frame);
-
-        Object.Instantiate<GameObject>(newPrefab);
-        PrefabUtility.SaveAsPrefabAsset(newPrefab, prefabPath);
-        Object.DestroyImmediate(newPrefab);
-        Object.DestroyImmediate(GameObject.Find("New Game Object(Clone)"));
-        AssetDatabase.SaveAssets();
-
-        Debug.Log("Baked Prefab successfully at" + prefabPath);
-    }
 
     /// <summary>
     /// 创建纹理，烘焙动画的骨骼变换矩阵
@@ -216,5 +132,117 @@ public class BuildGpuBonesAnimation
         mesh.colors = verticesColor;
         AssetDatabase.CreateAsset(mesh, meshPath);
         AssetDatabase.SaveAssets();
+    }
+
+    /// <summary>
+    /// 保存路径
+    /// </summary>
+    private static void GetSavePath(GameObject prefab, string savePath, string savePrefabPath)
+    {
+        meshPath = savePath + "/" + prefab.name + "_VerticesAnimationMesh" + ".asset";
+        A2TPath = savePath + "/" + prefab.name + "_VerticesAnimationTexture" + ".asset";
+        matPath = savePath + "/" + prefab.name + "_VerticesAnimationMaterial" + ".mat";
+        prefabPath = savePrefabPath + "/" + prefab.name + "_GpuAnim" + ".prefab";
+    }
+
+    /// <summary>
+    ///获取SK，Mesh，clip文件
+    /// </summary>
+    public static void GetAnimationsData(AnimationClip[] clips, GameObject bakePrefab)
+    {
+        SkinnedMeshRenderer[] skMeshs = bakePrefab.GetComponentsInChildren<SkinnedMeshRenderer>();
+        if (skMeshs == null || skMeshs.Length == 0)
+        {
+            Debug.LogError("Prefab has no SkinnedMeshRenderer!");
+            return;
+        }
+        if (skMeshs.Length > 1)
+        {
+            Debug.LogError("Prefab has more than 1 SkinnedMeshRenderer! Please combine Mesh to get better performance");
+            return;
+        }
+        skMesh = skMeshs[0];
+        mesh = Object.Instantiate(skMesh.sharedMesh);
+
+        //------------------------------------------------------------------获取动画-------------------------------------------------------------
+        if (clips.Length == 0)
+        {
+            Debug.LogError("There is no AnimationClips!");
+            return;
+        }
+        for (int i = 0; i < clips.Length; i++)
+        {
+            if (clips[i] == null)
+            {
+                Debug.LogError("There is a List has no AnimationClip!");
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 创建驱动动画的Animator
+    /// </summary>
+    public static void CreatAnimator(AnimationClip[] clips, int frame)
+    {
+        int startFtame = 0;
+        GpuAnimations = new GpuAnimations[clips.Length];
+        for (int h = 0; h < clips.Length; h++)
+        {
+            GpuAnimations[h] = new GpuAnimations();
+            GpuAnimations[h].animtionName = clips[h].name;
+            if (h > 0) { startFtame += (int)(frame * clips[h - 1].length); }
+            GpuAnimations[h].startFrame = startFtame;
+            GpuAnimations[h].frameLength = (int)(frame * clips[h].length);
+            GpuAnimations[h].isLoop = clips[h].isLooping;
+        }
+        mono.animations = GpuAnimations;
+        mono.frame = frame;
+        compute.animations = GpuAnimations;
+        compute.frame = frame;
+    }
+
+    /// <summary>
+    /// 创建材质
+    /// </summary>
+    public static void CreatMaterial(bool isNormalTangent)
+    {
+        var GpuVertexAnimShader = Shader.Find("RoXami/GpuAnim");
+        if (GpuVertexAnimShader == null)
+        {
+            Debug.LogError("Can't find GpuVertexAnim Shader to creat Material!");
+            return;
+        }
+
+        mat = new Material(GpuVertexAnimShader);
+        if (isNormalTangent)
+        {
+            mat.SetFloat("_isNormalTangent", 1);
+        }
+        mat.SetTexture("_verticesAnimTex", AssetDatabase.LoadAssetAtPath<Texture2D>(A2TPath));
+        mat.enableInstancing = true;
+        AssetDatabase.CreateAsset(mat, matPath);
+        Debug.Log("Baked A2T File successfully at" + matPath);
+    }
+
+    /// <summary>
+    /// 创建一个新的预制体
+    /// </summary>
+    public static void CreatNewPrefab(AnimationClip[] clips, int frame)
+    {
+
+        AssetDatabase.SaveAssets();
+        newPrefab = new GameObject();
+        newPrefab.AddComponent<MeshFilter>().mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
+        newPrefab.AddComponent<MeshRenderer>().material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+        mono = newPrefab.AddComponent<GpuAnimatorMono>();
+        compute = newPrefab.AddComponent<GpuAnimatorCompute>();
+
+        CreatAnimator(clips, frame);
+
+        PrefabUtility.SaveAsPrefabAsset(newPrefab, prefabPath);
+        AssetDatabase.SaveAssets();
+
+        Debug.Log("Baked Prefab successfully at" + prefabPath);
     }
 }
