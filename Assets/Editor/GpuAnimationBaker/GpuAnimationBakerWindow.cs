@@ -54,16 +54,7 @@ public class GpuAnimationBakerWindow : EditorWindow
 
         if (GUILayout.Button("Bake"))
         {
-            switch (animMode)
-            {
-                case GPUAnimMode.GpuVerticesAnimation:
-                    BuildGpuVerticesAnimation.BakeAnimToTexture2D(prefab, clips, frame, isNormalTangent, savePath, savePrefabPath);
-                    break;
-                case GPUAnimMode.GpuBonesAnimation:
-                    BuildGpuBonesAnimation.BakeAnimToTexture2D(prefab, clips, frame, isNormalTangent, savePath, savePrefabPath);
-                    break;
-            }
-            
+            BuildGpuAnimation.BakeAnimToTexture2D(prefab, clips, frame, isNormalTangent, savePath, savePrefabPath, animMode);
         }
     }
     //=====================================================GUI====================================================

@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEditor;
+using static GpuAnimationBakerWindow;
 
-public static class BuildGpuBonesAnimation
+public static class BuildGpuAnimation
 {
     static SkinnedMeshRenderer skMesh;
     static Mesh mesh;
@@ -20,32 +21,135 @@ public static class BuildGpuBonesAnimation
     static GpuAnimatorMono mono;
     static GpuAnimatorCompute compute;
     static GpuAnimations[] GpuAnimations;
-    public static void BakeAnimToTexture2D(GameObject prefab, AnimationClip[] clips , int frame , bool isNormalTangent , string savePath , string savePrefabPath)
+    public static void BakeAnimToTexture2D(GameObject prefab, AnimationClip[] clips , int frame , bool isNormalTangent , string savePath , string savePrefabPath, GPUAnimMode mode)
     {
         GameObject bakePrefab = Object.Instantiate(prefab);
 
         GetSavePath(prefab, savePath, savePrefabPath);
-
         GetAnimationsData(clips, bakePrefab);
 
-        CreatNewMesh();
+        switch (mode)
+        {
+            case GPUAnimMode.GpuVerticesAnimation:
+                CreatNewMeshVertices(isNormalTangent);
+                NewTextureVertices(clips, frame, isNormalTangent);
+                CreatA2TVertices(bakePrefab, clips, frame, isNormalTangent);
+                break;
+            case GPUAnimMode.GpuBonesAnimation:
+                CreatNewMeshBones();
+                NewTextureBones(clips, frame);
+                CreatA2TBones(bakePrefab, clips, frame, isNormalTangent);
+                break;
+        }
 
-        NewTexture(clips, frame);      
-   
-        CreatA2T(bakePrefab, clips, frame, isNormalTangent);
-
-        CreatMaterial(isNormalTangent);
-
-        CreatNewPrefab(clips, frame);
-
+        CreatMaterial(isNormalTangent, mode);
+        CreatNewPrefab(clips, frame, mode);
         Object.DestroyImmediate(bakePrefab);
         Object.DestroyImmediate(newPrefab);
     }
 
+
+    //VerticesTextureMesh
+    #region
     /// <summary>
     /// New一个纹理
     /// </summary>
-    public static void NewTexture(AnimationClip[] clips, int frame)
+    public static void NewTextureVertices(AnimationClip[] clips, int frame, bool isNormalTangent)
+    {
+        animLength = 0;
+        for (int i = 0; i < clips.Length; i++)
+        {
+            animLength += (int)(frame * clips[i].length);
+        }
+        texHeight = animLength;
+        if (isNormalTangent)
+        {
+            texWidth = mesh.vertexCount * 3;
+        }
+        else
+        {
+            texWidth = mesh.vertexCount;
+        }
+
+        A2T = new Texture2D(texWidth, texHeight, TextureFormat.RGBAHalf, false, true);
+    }
+    /// <summary>
+    /// 创建纹理，烘焙顶点的位置，法线切线
+    /// </summary>
+    public static void CreatA2TVertices(GameObject prefab, AnimationClip[] clips, int frame, bool isNormalTangent)
+    {
+        //前一个动画的长度
+        int lastAnimationLength = 0;
+        //原始顶点的位置
+        Vector3[] originalVertices = mesh.vertices;
+
+        for (int l = 0; l < clips.Length; l++)
+        {
+            if (l > 0)
+            {
+                lastAnimationLength += (int)(frame * clips[l - 1].length);
+            }
+
+            for (int i = 0; i < (int)(frame * clips[l].length); i++)
+            {
+                float time = (float)i / frame;
+
+                clips[l].SampleAnimation(prefab, time);
+                Mesh bakeMesh = Object.Instantiate<Mesh>(mesh);
+                skMesh.BakeMesh(bakeMesh);
+
+                for (int j = 0; j < bakeMesh.vertexCount; j++)
+                {
+                    Vector3 offestPos = bakeMesh.vertices[j] - originalVertices[j];
+                    Color verticesData = new Color(offestPos.x, offestPos.y, offestPos.z, 1);
+                    A2T.SetPixel(j * 3, i + lastAnimationLength, verticesData);
+
+                    if (isNormalTangent)
+                    {
+                        Color normalsData = new Color(bakeMesh.normals[j].x, bakeMesh.normals[j].y, bakeMesh.normals[j].z, 1);
+                        A2T.SetPixel(j * 3 + 1, i + lastAnimationLength, normalsData);
+
+                        Color tangentsData = bakeMesh.tangents[j];
+                        A2T.SetPixel(j * 3 + 2, i + lastAnimationLength, tangentsData);
+                    }
+                }
+            }
+        }
+
+        A2T.Apply();
+        AssetDatabase.CreateAsset(A2T, A2TPath);
+        AssetDatabase.SaveAssets();
+    }
+    /// <summary>
+    /// 创建Mesh，存储顶点索引到uv1
+    /// </summary>
+    public static void CreatNewMeshVertices(bool isNormalTangent)
+    {
+        Vector2[] animUV = new Vector2[mesh.vertexCount];
+        for (int k = 0; k < mesh.vertexCount; k++)
+        {
+            if (isNormalTangent)
+            {
+                animUV[k] = new Vector2(k * 3, 0);
+            }
+            else
+            {
+                animUV[k] = new Vector2(k, 0);
+            }
+
+        }
+        mesh.SetUVs(1, animUV);
+        AssetDatabase.CreateAsset(mesh, meshPath);
+        AssetDatabase.SaveAssets();
+    }
+    #endregion
+
+    //BonesTextureMesh
+    #region
+    /// <summary>
+    /// New一个纹理
+    /// </summary>
+    public static void NewTextureBones(AnimationClip[] clips, int frame)
     {
         animLength = 0;
         for (int i = 0; i < clips.Length; i++)
@@ -57,21 +161,19 @@ public static class BuildGpuBonesAnimation
         texWidth = skMesh.bones.Length * 3;
         A2T = new Texture2D(texWidth, texHeight, TextureFormat.RGBAHalf, false, true);
     }
-
-
     /// <summary>
     /// 创建纹理，烘焙动画的骨骼变换矩阵
     /// </summary>
-    public static void CreatA2T(GameObject bakePrefab, AnimationClip[] clips, int frame, bool isNormalTangent)
+    public static void CreatA2TBones(GameObject bakePrefab, AnimationClip[] clips, int frame, bool isNormalTangent)
     {
         //前一个动画的长度
-        int previewAnimationLength = 0;
+        int lastAnimationLength = 0;
 
         for (int l = 0; l < clips.Length; l++)
         {
             if (l > 0)
             {
-                previewAnimationLength += (int)(frame * clips[l - 1].length);
+                lastAnimationLength += (int)(frame * clips[l - 1].length);
             }
 
             for (int i = 0; i < (int)(frame * clips[l].length); i++)
@@ -93,9 +195,9 @@ public static class BuildGpuBonesAnimation
                     Color row1 = new Color(boneMatrix.m10, boneMatrix.m11, boneMatrix.m12, boneMatrix.m13);
                     Color row2 = new Color(boneMatrix.m20, boneMatrix.m21, boneMatrix.m22, boneMatrix.m23);
                     //纵向为动画的帧数，横向为当前帧的变换矩阵
-                    A2T.SetPixel(j * 3, animLength * 2 + i + previewAnimationLength, row0);
-                    A2T.SetPixel(j * 3 + 1, animLength * 2 + i + previewAnimationLength, row1);
-                    A2T.SetPixel(j * 3 + 2, animLength * 2 + i + previewAnimationLength, row2);
+                    A2T.SetPixel(j * 3, animLength * 2 + i + lastAnimationLength, row0);
+                    A2T.SetPixel(j * 3 + 1, animLength * 2 + i + lastAnimationLength, row1);
+                    A2T.SetPixel(j * 3 + 2, animLength * 2 + i + lastAnimationLength, row2);
                 } 
             }
         }
@@ -103,11 +205,10 @@ public static class BuildGpuBonesAnimation
         AssetDatabase.CreateAsset(A2T, A2TPath);
         AssetDatabase.SaveAssets();
     }
-
     /// <summary>
     /// 创建Mesh，储存骨骼索引和骨骼蒙皮权重到uv和顶点色（这两个是静态数据）
     /// </summary>
-    public static void CreatNewMesh()
+    public static void CreatNewMeshBones()
     {
         //存储骨骼索引到UV1的四个分量
         Vector4[] bonesUV = new Vector4[mesh.vertexCount];
@@ -133,7 +234,10 @@ public static class BuildGpuBonesAnimation
         AssetDatabase.CreateAsset(mesh, meshPath);
         AssetDatabase.SaveAssets();
     }
+    #endregion
 
+    //Options
+    #region
     /// <summary>
     /// 保存路径
     /// </summary>
@@ -144,7 +248,6 @@ public static class BuildGpuBonesAnimation
         matPath = savePath + "/" + prefab.name + "_VerticesAnimationMaterial" + ".mat";
         prefabPath = savePrefabPath + "/" + prefab.name + "_GpuAnim" + ".prefab";
     }
-
     /// <summary>
     ///获取SK，Mesh，clip文件
     /// </summary>
@@ -179,11 +282,10 @@ public static class BuildGpuBonesAnimation
             }
         }
     }
-
     /// <summary>
     /// 创建驱动动画的Animator
     /// </summary>
-    public static void CreatAnimator(AnimationClip[] clips, int frame)
+    public static void CreatAnimator(AnimationClip[] clips, int frame, GPUAnimMode mode)
     {
         int startFtame = 0;
         GpuAnimations = new GpuAnimations[clips.Length];
@@ -200,12 +302,18 @@ public static class BuildGpuBonesAnimation
         mono.frame = frame;
         compute.animations = GpuAnimations;
         compute.frame = frame;
+        switch (mode)
+        {
+            case GPUAnimMode.GpuVerticesAnimation:
+                break;
+            case GPUAnimMode.GpuBonesAnimation:
+                break;
+        }
     }
-
     /// <summary>
     /// 创建材质
     /// </summary>
-    public static void CreatMaterial(bool isNormalTangent)
+    public static void CreatMaterial(bool isNormalTangent, GPUAnimMode mode)
     {
         var GpuVertexAnimShader = Shader.Find("RoXami/GpuAnim");
         if (GpuVertexAnimShader == null)
@@ -213,22 +321,27 @@ public static class BuildGpuBonesAnimation
             Debug.LogError("Can't find GpuVertexAnim Shader to creat Material!");
             return;
         }
-
         mat = new Material(GpuVertexAnimShader);
         if (isNormalTangent)
         {
             mat.SetFloat("_isNormalTangent", 1);
         }
         mat.SetTexture("_verticesAnimTex", AssetDatabase.LoadAssetAtPath<Texture2D>(A2TPath));
+        switch (mode)
+        {
+            case GPUAnimMode.GpuVerticesAnimation:
+                break;
+            case GPUAnimMode.GpuBonesAnimation:
+                break;
+        }
         mat.enableInstancing = true;
         AssetDatabase.CreateAsset(mat, matPath);
         Debug.Log("Baked A2T File successfully at" + matPath);
     }
-
     /// <summary>
     /// 创建一个新的预制体
     /// </summary>
-    public static void CreatNewPrefab(AnimationClip[] clips, int frame)
+    public static void CreatNewPrefab(AnimationClip[] clips, int frame, GPUAnimMode mode)
     {
 
         AssetDatabase.SaveAssets();
@@ -238,11 +351,12 @@ public static class BuildGpuBonesAnimation
         mono = newPrefab.AddComponent<GpuAnimatorMono>();
         compute = newPrefab.AddComponent<GpuAnimatorCompute>();
 
-        CreatAnimator(clips, frame);
+        CreatAnimator(clips, frame, mode);
 
         PrefabUtility.SaveAsPrefabAsset(newPrefab, prefabPath);
         AssetDatabase.SaveAssets();
 
         Debug.Log("Baked Prefab successfully at" + prefabPath);
     }
+    #endregion
 }
