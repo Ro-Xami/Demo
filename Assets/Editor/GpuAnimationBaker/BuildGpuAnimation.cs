@@ -18,8 +18,7 @@ public static class BuildGpuAnimation
     static string matPath;
     static string prefabPath;
 
-    static GpuAnimatorMono mono;
-    static GpuAnimatorCompute compute;
+    static GpuAnimator gpuAnimator;
     static GpuAnimations[] GpuAnimations;
     public static void BakeAnimToTexture2D(GameObject prefab, AnimationClip[] clips , int frame , bool isNormalTangent , string savePath , string savePrefabPath, GPUAnimMode mode)
     {
@@ -298,10 +297,8 @@ public static class BuildGpuAnimation
             GpuAnimations[h].frameLength = (int)(frame * clips[h].length);
             GpuAnimations[h].isLoop = clips[h].isLooping;
         }
-        mono.animations = GpuAnimations;
-        mono.frame = frame;
-        compute.animations = GpuAnimations;
-        compute.frame = frame;
+        gpuAnimator.animations = GpuAnimations;
+        gpuAnimator.frame = frame;
         switch (mode)
         {
             case GPUAnimMode.GpuVerticesAnimation:
@@ -326,12 +323,14 @@ public static class BuildGpuAnimation
         {
             mat.SetFloat("_isNormalTangent", 1);
         }
-        mat.SetTexture("_verticesAnimTex", AssetDatabase.LoadAssetAtPath<Texture2D>(A2TPath));
+        mat.SetTexture("_gpuAnimationMatrix", AssetDatabase.LoadAssetAtPath<Texture2D>(A2TPath));
         switch (mode)
         {
             case GPUAnimMode.GpuVerticesAnimation:
+                mat.SetFloat("_IsBonesOrVertices", 0);
                 break;
             case GPUAnimMode.GpuBonesAnimation:
+                mat.SetFloat("_IsBonesOrVertices", 1);
                 break;
         }
         mat.enableInstancing = true;
@@ -348,8 +347,7 @@ public static class BuildGpuAnimation
         newPrefab = new GameObject();
         newPrefab.AddComponent<MeshFilter>().mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
         newPrefab.AddComponent<MeshRenderer>().material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
-        mono = newPrefab.AddComponent<GpuAnimatorMono>();
-        compute = newPrefab.AddComponent<GpuAnimatorCompute>();
+        gpuAnimator = newPrefab.AddComponent<GpuAnimator>();
 
         CreatAnimator(clips, frame, mode);
 

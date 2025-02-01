@@ -43,6 +43,7 @@ public class GennerateTest : MonoBehaviour
             {
                 animIDList[i] = (animIDList[i] + 1 )% 3;
             }
+            //Debug.Log("ÇÐ»»¶¯»­");
         }
 
         firstAnimID = animIDList[0];

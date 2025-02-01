@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class GpuAnimatorMono : MonoBehaviour
 {
-    public int frame = 60;
-    public GpuAnimations[] animations;
+    public GameObject prefab;
 
+    private int frame = 60;
+    private GpuAnimations[] animations;
     private MaterialPropertyBlock propertyBlock;
     private Mesh mesh;
     private Material mat;
@@ -15,8 +16,10 @@ public class GpuAnimatorMono : MonoBehaviour
 
     private void Start()
     {
-        mesh = this.GetComponent<MeshFilter>().sharedMesh;
-        mat = this.GetComponent<MeshRenderer>().sharedMaterial;
+        mesh = prefab.GetComponent<MeshFilter>().sharedMesh;
+        mat = prefab.GetComponent<MeshRenderer>().sharedMaterial;
+        frame = prefab.GetComponent<GpuAnimator>().frame;
+        animations = prefab.GetComponent<GpuAnimator>().animations;
     }
 
     public void Generation(List<Matrix4x4> matrix, List<int> animID)
@@ -57,7 +60,7 @@ public class GpuAnimatorMono : MonoBehaviour
             //Debug.Log(frameIndex[i]);
         }
         propertyBlock = new MaterialPropertyBlock();
-        propertyBlock.SetFloatArray("_frameIndex", frameIndex);
+        propertyBlock.SetFloatArray("_animationPlayedData", frameIndex);
         Graphics.DrawMeshInstanced(mesh, 0, mat, matrix, propertyBlock);
         //Debug.Log(matrix.Count);
     }

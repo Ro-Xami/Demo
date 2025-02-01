@@ -1,7 +1,7 @@
 ﻿#pragma kernel GpuAnimationRenderer
 
 //对应每个对象且需要赋值的变量
-struct GpuVerticesDataInput
+struct GpuAnimationsDataInput
 {
 	float4x4 trsMatrix;
 	int animID;
@@ -9,30 +9,34 @@ struct GpuVerticesDataInput
 	float startFrame;
 	float animationLength;
 };
-StructuredBuffer<GpuVerticesDataInput> inputBuffer;
+StructuredBuffer<GpuAnimationsDataInput> inputBuffer;
 
 //对应每个对象但不需要赋值且后续可能要读写的变量
 struct RWData
 {
 	float timer;
 	int lastAnimID;
+	int lastAnimID2Shader;
+	float lastFrame;
+	float blendFactor;
 };
 RWStructuredBuffer<RWData> rwData;
 
 //统一的变量
 uint inputCount;
-float fps;
+float deltaTime;
+float frame;
 float4 cameraPlanes[6];
 float3 boxCenter;
 float3 boxExtents;
 
 //输出到Shader的变量
-struct GpuVerticesDataOutput
+struct GpuAnimationsDataOutput
 {
 	float4x4 trsMatrixCulled;
-	float frameCulled;
+	float4 animationPlayedData;
 };
-AppendStructuredBuffer<GpuVerticesDataOutput> outputBuffer;
+AppendStructuredBuffer<GpuAnimationsDataOutput> outputBuffer;
 
 //判断点是否在平面外
 bool IsOutsidePlane(float4 plane , float3 pointPosition)
@@ -60,33 +64,23 @@ float IsTimeOver(int loop , float time , float length)
 {
 	if (time > length)
 	{
-		if (loop = 1)
+		if (loop == 1)
 		{
 			time = 0;
 		}
 		else
 		{
-			time = length;
+			time = length - 1;
 		}
 	}
 	return time;
-}
-
-//判断当前帧和上一帧是否相同
-void IsChangAnimID(float time , int current , int last)
-{
-	if (current != last)
-	{
-		time = 0;
-		last = time;
-	}
 }
 
 //核函数
 [numthreads(64,1,1)]
 void GpuAnimationRenderer (uint3 id : SV_DispatchThreadID)
 {
-	if (id.x >= inputCount) return;
+	if (id.x >= inputCount) return;	
 //视锥体剔除
 	float4x4 instance = inputBuffer[id.x].trsMatrix;
 
@@ -102,17 +96,40 @@ void GpuAnimationRenderer (uint3 id : SV_DispatchThreadID)
     boundVerts[5] = mul(instance, float4(boundMin.x, boundMax.y, boundMin.z, 1));
     boundVerts[7] = mul(instance, float4(boundMin.x, boundMin.y, boundMax.z, 1));
 //动画帧数
+	float fps = deltaTime * frame;
+
 	rwData[id.x].timer += fps;
     rwData[id.x].timer = IsTimeOver(inputBuffer[id.x].isLoop, rwData[id.x].timer, inputBuffer[id.x].animationLength);
-    IsChangAnimID(rwData[id.x].timer, (int)inputBuffer[id.x].animID, rwData[id.x].lastAnimID);
-    float frameIndex = (rwData[id.x].timer + inputBuffer[id.x].startFrame);
 
+	if ((int)inputBuffer[id.x].animID != rwData[id.x].lastAnimID)
+	{
+		rwData[id.x].lastAnimID2Shader = rwData[id.x].lastFrame;
+		rwData[id.x].timer = 0;
+		rwData[id.x].lastAnimID = (int)inputBuffer[id.x].animID;
+		rwData[id.x].blendFactor = 0.01;
+	}
+
+	if (rwData[id.x].blendFactor < 1)
+	{
+		rwData[id.x].blendFactor += deltaTime;
+	}
+	else
+	{
+		rwData[id.x].lastAnimID2Shader = rwData[id.x].lastFrame;
+	}
+
+    float frameIndex = rwData[id.x].timer + inputBuffer[id.x].startFrame;
+	float blendPercent = rwData[id.x].blendFactor;
+	float last2Shader = rwData[id.x].lastAnimID2Shader;
+	rwData[id.x].lastFrame = frameIndex;
 //输出Buffer
 	if(!IsCulled(boundVerts))
 	{
-		GpuVerticesDataOutput output = (GpuVerticesDataOutput)0;
+		GpuAnimationsDataOutput output = (GpuAnimationsDataOutput)0;
         output.trsMatrixCulled = instance;
-		output.frameCulled = frameIndex;
+		output.animationPlayedData.x = frameIndex;
+		output.animationPlayedData.y = last2Shader;
+		output.animationPlayedData.z = blendPercent;
         outputBuffer.Append(output);
 	}	
 }

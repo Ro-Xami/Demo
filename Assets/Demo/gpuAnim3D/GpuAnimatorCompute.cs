@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class GpuAnimatorCompute : MonoBehaviour
 {
-    public int frame = 60;
+    public GameObject prefab;
     public int instanceMaxCount;
-    public Bounds drawBounds;
-    public GpuAnimations[] animations;
+    public Bounds drawBounds; 
     public ComputeShader compute;
 
+    private int frame;
+    private GpuAnimations[] animations;
     private int instanceCount;
     private Mesh mesh;
     private Material material;
@@ -18,8 +20,6 @@ public class GpuAnimatorCompute : MonoBehaviour
     Bounds camBounds = new Bounds();
 
     private Camera mainCamera;
-    private Vector3 per_playerPos = Vector3.zero;
-    private Quaternion per_playerRot = Quaternion.identity;
 
     private int kernel;
     private Vector4[] cameraPlanes = new Vector4[6];
@@ -48,14 +48,16 @@ public class GpuAnimatorCompute : MonoBehaviour
         compute = Instantiate(compute);
         mainCamera = Camera.main;
         //初始化所需的Mesh，Mat，Bound
-        mesh = this.GetComponent<MeshFilter>().sharedMesh;
-        material = this.GetComponent<MeshRenderer>().sharedMaterial;
-        bounds = this.GetComponent<MeshRenderer>().bounds;
+        mesh = prefab.GetComponent<MeshFilter>().sharedMesh;
+        material = prefab.GetComponent<MeshRenderer>().sharedMaterial;
+        bounds = prefab.GetComponent<MeshRenderer>().bounds;
+        frame = prefab.GetComponent<GpuAnimator>().frame;
+        animations = prefab.GetComponent<GpuAnimator>().animations;
         //初始化ComputeShader变量
         kernel = compute.FindKernel("GpuAnimationRenderer");
         inputBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) * 16 + sizeof(int) + sizeof(int) + sizeof(float) + sizeof(float));
-        outputBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) * 16, ComputeBufferType.Append);
-        rwBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) + sizeof(int) , ComputeBufferType.Raw);
+        outputBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) * 16 + sizeof(float) * 4, ComputeBufferType.Append);
+        rwBuffer = new ComputeBuffer(instanceMaxCount, sizeof(float) * 3 + sizeof(int) * 2, ComputeBufferType.Raw);
         //argsBuffer是DrawMeshInstancedIndirect的固定写法
         args[0] = mesh.GetIndexCount(0);
         args[1] = 0;
@@ -65,7 +67,7 @@ public class GpuAnimatorCompute : MonoBehaviour
         argsBuffer = new ComputeBuffer(5, sizeof(uint) * 5, ComputeBufferType.IndirectArguments);
         argsBuffer.SetData(args);
         matPropertyBlock = new MaterialPropertyBlock();
-        matPropertyBlock.SetBuffer("gpuVerticesBuffeData", outputBuffer);
+        matPropertyBlock.SetBuffer("gpuBufferData", outputBuffer);
 
     }
 
@@ -98,7 +100,8 @@ public class GpuAnimatorCompute : MonoBehaviour
         //给ComputeShader赋值
         compute.SetBuffer(kernel, "inputBuffer", inputBuffer);
         compute.SetBuffer(kernel, "rwData", rwBuffer);
-        compute.SetFloat("fps", Time.deltaTime * frame);
+        compute.SetFloat("deltaTime", Time.deltaTime);
+        compute.SetFloat("frame", frame);
         compute.SetFloat("inputCount", instanceCount);
         compute.SetVector("boxCenter", bounds.center);
         compute.SetVector("boxExtents", bounds.extents);

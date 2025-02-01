@@ -6,6 +6,11 @@ float4 GetBoneAnimationMatrix(Texture2D<float4> tex , float boneIndex , float ma
     return tex.Load(int3(boneIndex + matrixRowID , frameIndex, 0));
 }
 
+float3 blendData(float3 a, float3 b, float c)
+{
+    return a + c * (b - a);
+}
+
 half4x4 extractRotationMatrix(half4x4 m)
 {
     half sx = length(half3(m[0][0], m[0][1], m[0][2]));
@@ -116,7 +121,7 @@ void ComputeGpuBonesAnimationBlend(Texture2D<float4> tex, float3 positionInput,
         ComputeGpuBonesAnimation(tex, positionInput
 							    , uv, vertColor, frameIndex
 							    , positionPreview);
-        positionOutput = lerp(positionLast, positionPreview, blend);
+        positionOutput = blendData(positionLast, positionPreview, blend);
     }
     else
     {
@@ -149,9 +154,9 @@ void ComputeGpuBonesAnimationBlend(Texture2D<float4> tex, float3 positionInput, 
         ComputeGpuBonesAnimation(tex, positionInput, normalInput, tangentInput
 							    , uv, vertColor, frameIndex
 							    , positionPreview, normalPreview, tangentPreview);
-        positionOutput = lerp(positionLast, positionPreview, blend);
-        normalOutput = lerp(normalLast, normalPreview, blend);
-        tangentOutput.xyz = lerp(tangentLast.xyz, tangentPreview.xyz, blend);
+        positionOutput = blendData(positionLast, positionPreview, blend);
+        normalOutput = blendData(normalLast, normalPreview, blend);
+        tangentOutput.xyz = blendData(tangentLast.xyz, tangentPreview.xyz, blend);
 
     }
     else
