@@ -1,4 +1,4 @@
-Shader "Jian/CustomRenderFeature/CustomPost" {
+Shader "RoXami/CustomRenderFeature/CustomPost" {
 	Properties {
 	}
 	SubShader {

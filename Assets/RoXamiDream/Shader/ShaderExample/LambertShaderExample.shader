@@ -1,4 +1,4 @@
-Shader "Custom/LambertShaderExample" {
+Shader "RoXami/Example/LambertShaderExample" {
 	Properties {
 		_BaseMap ("Example Texture", 2D) = "white" {}
 		_BaseColor ("Example Colour", Color) = (1, 1, 1, 1)

@@ -1,4 +1,4 @@
-Shader "Custom/LitShaderExample" {
+Shader "RoXami/Example/LitShaderExample" {
 	Properties {
 		_BaseMap ("Base Texture", 2D) = "white" {}
 		_BaseColor ("Example Colour", Color) = (0, 0.66, 0.73, 1)

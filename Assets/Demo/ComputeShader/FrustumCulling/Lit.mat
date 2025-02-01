@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Lit
-  m_Shader: {fileID: 4800000, guid: 71f9b9e2ce8d70a459d5240b7d70ac42, type: 3}
+  m_Shader: {fileID: 4800000, guid: 39aa4303d8903cd45972ce25ca0cf203, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -20,7 +20,6 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap:
     QUEUE: Geometry
-    RenderType: Opaque
   disabledShaderPasses:
   - SHADOWCASTER
   - DepthOnly
@@ -93,6 +92,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _gpuAnimationMatrix:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _maskMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -138,6 +141,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _IsBonesOrVertices: 0
     - _Metallic: 0
     - _NormalScale: 1
     - _OcclusionStrength: 1
@@ -175,6 +179,7 @@ Material:
     - _isNormalTangent: 0
     - _isOpaque: 0
     - _isReceiveShadow: 0
+    - _isReceiveToonShadow: 0
     - _isShadowCasterPass: 0
     - _metallic: 0
     - _normalStrength: 0
@@ -186,6 +191,7 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _animationPlayedData: {r: 0, g: 0, b: 0, a: 0}
     - _brushStrength: {r: 0.1, g: 0.1, b: 0.1, a: 0}
     - _brushTransform: {r: 10, g: 10, b: 10, a: 0}
     - _emissionColor: {r: 0, g: 0, b: 0, a: 0}

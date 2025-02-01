@@ -87,7 +87,7 @@ public class SSAOPassRenderFeature : ScriptableRendererFeature
         m_VolumeStack = VolumeManager.instance.stack;
         m_CustomVolume = m_VolumeStack.GetComponent<SSAOVolume>();
 
-        var m_Shader = Shader.Find("Jian/CustomRenderFeature/SSAO");
+        var m_Shader = Shader.Find("RoXami/CustomRenderFeature/SSAO");
         if (m_Shader == null)
         {
             Debug.LogError("Shader is null");

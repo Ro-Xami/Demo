@@ -1,4 +1,4 @@
-Shader "Jian/CustomRenderFeature/SSAO" {
+Shader "RoXami/CustomRenderFeature/SSAO" {
 	Properties {
 
 	}

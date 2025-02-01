@@ -1,4 +1,4 @@
-Shader "Jian/Girl/Eye"{
+Shader "RoXami/Girl/Eye"{
 Properties {
 		_Color ("Color", Color) = (1, 1, 1, 1)
 		[NoScaleOffest]_MainTex ("MainTex", 2D) = "white" {}

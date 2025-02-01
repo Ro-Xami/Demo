@@ -1,4 +1,4 @@
-Shader "Jian/Example/FlatTessellation" {
+Shader "RoXami/Example/FlatTessellation" {
 	Properties {
 		[Header(Tess)]
         [KeywordEnum(integer, fractional_even, fractional_odd)]_Partitioning ("Partitioning Mode", Float) = 0

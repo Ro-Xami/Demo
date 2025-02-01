@@ -1,4 +1,4 @@
-Shader "Jian/Example/PNTessellation" {
+Shader "RoXami/Example/PNTessellation" {
 	Properties {
 		[Header(Tess)]
         [KeywordEnum(integer, fractional_even, fractional_odd)]_Partitioning ("Partitioning Mode", Float) = 0

@@ -1,4 +1,4 @@
-Shader "Jian/Girl/Face" {
+Shader "RoXami/Girl/Face" {
 	Properties {
 		_Color ("Color", Color) = (1, 1, 1, 1)
 		_MainTex ("MainTex", 2D) = "white" {}

@@ -1,4 +1,4 @@
-Shader "Jian/Girl/Hair_G-1" {
+Shader "RoXami/Girl/Hair_G-1" {
 	Properties {
 		_Color ("Color", Color) = (1, 1, 1, 1)
 		_MainTex ("MainTex", 2D) = "white" {}

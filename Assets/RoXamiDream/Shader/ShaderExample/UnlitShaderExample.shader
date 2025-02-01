@@ -1,4 +1,4 @@
-Shader "Example/UnlitShaderExample" {
+Shader "RoXami/Example/UnlitShaderExample" {
 	Properties {
 		_BaseMap ("Example Texture", 2D) = "white" {}
 		_BaseColor ("Example Colour", Color) = (0, 0.66, 0.73, 1)

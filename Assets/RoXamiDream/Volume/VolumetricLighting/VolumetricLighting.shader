@@ -1,4 +1,4 @@
-Shader "Jian/CustomRenderFeature/VolumetricLighting" {
+Shader "RoXami/CustomRenderFeature/VolumetricLighting" {
 	Properties {
 	_VolumetricColor("VolumetricColor" , Color) = (1,1,1,1)
 	_MaxDistance("MaxDistance" , Float) = 1000
