@@ -2,55 +2,70 @@ Shader "RoXami/GpuAnim"
 {
     Properties
     {
-		_Color ("Color" , Color) = (1 , 1 , 1 , 1)
-        [NoScaleOffset] _baseMap ("BaseMap", 2D) = "white" {}
-		[Toggle] _isNormalMap("isNormalMap", Int) = 0
-		[NoScaleOffset] _normalMap ("NormalMap", 2D) = "Bump" {}
-		_normalStrength ("NormalScale" , float) = 0
-		[Toggle] _isArmMap("isArmMap", Int) = 0
-		[NoScaleOffset]_maskMap ("ArmMap", 2D) = "white" {}
-		_ao ("AO" , Range(0 , 1)) = 1
-		_roughness ("Roughness" , Range(0 , 1)) = 0.5
-		_metallic ("Metallic" , Range(0 , 1)) = 0
-		[Toggle] _isEmissionMap("isEmissionMap", Int) = 0
-		[NoScaleOffset] _emissionMap ("EmissionMap", 2D) = "white" {}
-		[HDR] _emissionColor ("EmissiveColor" , Color) = (0 , 0 , 0 , 0)
-		[Toggle] _isAlphaClip("isAlphaClip", Int) = 0
-		_cutOut("CutOut" , Range(0,1)) = 0.5
-		_diffuseMin ("DiffuseMin" , Range(0 , 1)) = 0.5
-		_diffuseMax ("DiffuseMax" , Range(0.01 , 1)) = 0.75
-		_lightColor ("LightColor" , Color) = (1 , 1 , 1 , 1)
-		_shadowColor ("ShadowColor" , Color) = (0.1 , 0.1 , 0.1 , 1)
-		_specMin ("SpecMin" , Range(0.01 , 0.9999)) = 0.7
-		_specMax ("SpecMax" , Range(0.01 , 0.5)) = 1
-		_specColor ("SpecColor" , Color) = (0.5 , 0.5 , 0.5 , 0.5)
-		_inSpecMin ("InSpecMin" , Range(0.01 , 1)) = 0.5
-		_inSpecMax ("InSpecMax" , Range(0.01 , 0.5)) = 0.75
-		_inSpecColor ("InSpecColor" , Color) = (1 , 1 , 1 , 1)
-		[Toggle] _isBrush("isBrush", Int) = 0
-		_brush ("BrushMap" , 2D) = "white" {}
-		_brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
-		_brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
+		//PBR
+		[Main(g1, _, on, off)]_group1 ("PBR Rendering", float) = 1
+		[g1,Title(Base Color)]
+		[Sub(g1)] _Color ("Color" , Color) = (1 , 1 , 1 , 1)
+        [Sub(g1)] _baseMap ("BaseMap", 2D) = "white" {}
+		[Space(10)][g1,Title(Normal)]
+		[SubToggle(g1, _ISNORMALMAP_ON)] _isNormalMap("isNormalMap", Int) = 0
+		[Tex(g1)][Normal] _normalMap ("NormalMap", 2D) = "Bump" {}
+		[Sub(g1)]_normalStrength ("NormalScale" , float) = 0
+		[Space(10)][g1,Title(PBR)]
+		[SubToggle(g1, _ISARMMAP_ON)] _isArmMap("isArmMap", Int) = 0
+		[Tex(g1)]_maskMap ("ArmMap", 2D) = "white" {}
+		[Sub(g1)]_ao ("AO" , Range(0 , 1)) = 1
+		[Sub(g1)]_roughness ("Roughness" , Range(0 , 1)) = 0.5
+		[Sub(g1)]_metallic ("Metallic" , Range(0 , 1)) = 0
+		[Space(10)][g1,Title(Emission)]
+		[SubToggle(g1, _ISEMISSIONMAP_ON)] _isEmissionMap("isEmissionMap", Int) = 0
+		[Tex(g1)][NoScaleOffset] _emissionMap ("EmissionMap", 2D) = "white" {}
+		[Sub(g1)][HDR] _emissionColor ("EmissiveColor" , Color) = (0 , 0 , 0 , 0)
+		//Toon
+		[Main(g2, _, on, off)]_group2 ("Toon Rendering", float) = 0
+		[g2,Title(Diffuse)]
+		[Sub(g2)]_lightColor ("LightColor" , Color) = (1 , 1 , 1 , 1)
+		[Sub(g2)]_shadowColor ("ShadowColor" , Color) = (0.1 , 0.1 , 0.1 , 1)
+		[MinMaxSlider(g2,_diffuseMin, _diffuseMax)] _diffuseSlider ("Diffuse Slider", Range(0.0, 1.0)) = 1.0
+		[HideInInspector]_diffuseMin ("DiffuseMin" , Range(0 , 1)) = 0.5
+		[HideInInspector]_diffuseMax ("DiffuseMax" , Range(0 , 1)) = 0.75
+		[Space(10)][g2,Title(Spec)]
+		[Sub(g2)]_specColor ("SpecColor" , Color) = (0.5 , 0.5 , 0.5 , 1)
+		[MinMaxSlider(g2,_specMin, _specMax)] _specSlider ("Spec Slider", Range(0.0, 1.0)) = 1.0
+		[HideInInspector]_specMin ("SpecMin" , Range(0 , 1)) = 0.7
+		[HideInInspector]_specMax ("SpecMax" , Range(0 , 1)) = 1
+		[Space(10)][g2,Title(InSpec)]
+		[Sub(g2)]_inSpecColor ("InSpecColor" , Color) = (1 , 1 , 1 , 1)
+		[MinMaxSlider(g2,_inSpecMin, _inSpecMax)] _inSpecSlider ("inSpec Slider", Range(0.0, 1.0)) = 1.0
+		[HideInInspector]_inSpecMin ("InSpecMin" , Range(0 , 1)) = 0.5
+		[HideInInspector]_inSpecMax ("InSpecMax" , Range(0 , 1)) = 0.75
+		//Brush
+		[Main(g3, _ISBRUSH_ON, off)]_group3 ("Toon Brush", float) = 0
+		[Sub(g3)][NoScaleOffset]_brush ("BrushMap" , 2D) = "white" {}
+		[Sub(g3)]_brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
+		[Sub(g3)]_brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
 		//SurfaceOptions
-		[Toggle] _isOpaque ("isOpaque", Int) = 0
-		[Toggle] _isReceiveToonShadow ("isReceiveToonShadow", Int) = 0
-		//Pass----------------------------------------------------------------
-		[Toggle] _isShadowCasterPass ("isShadowCasterPass", Int) = 1
-		[Toggle] _isDepthOnlyPass ("isDepthOnlyPass", Int) = 1
-		[Toggle] _isDepthNormalsPass ("isDepthNormalsPass", Int) = 1
-		//Option------------------------------------------------------------
-		[Header(Option)]
-		[Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", Float) = 1
-		[Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", Float) = 0
-		[Enum(Off, 0, On, 1)]_ZWriteMode ("ZWriteMode", float) = 1
-		[Enum(UnityEngine.Rendering.CullMode)]_CullMode ("CullMode", float) = 2
-		[Enum(UnityEngine.Rendering.CompareFunction)]_ZTestMode ("ZTestMode", Float) = 4
+		[Main(g4, _, on, off)]_group4 ("Surface Options", float) = 0
+		[g4,Title(Render Type)]
+		[Preset(g4, LWGUI_Preset_BlendMode)] _surfaceOptions ("Surface Options", float) = 0
+		[SubToggle(g4, _ISALPHACLIP_ON)] _isAlphaClip("isAlphaClip", Int) = 0
+		[Sub(g4)]_cutOut("CutOut" , Range(0,1)) = 0.5
+		[Space(10)][g4,Title(Surface)]
+		[SubEnum(g4, UnityEngine.Rendering.CullMode)] _CullMode ("CullMode", Float) = 2
+		[SubToggle(g4, _ISRECEIVETOONSHADOW_ON)] _isReceiveToonShadow("isReceiveToonShadow", Int) = 1
+		[Space(10)][g4,Title(Transparent Options)]
+		[SubToggle(g4)] _ZWriteMode ("ZWriteMode ", Float) = 1
+		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTestMode ("ZTestMode", Float) = 4
+		//[Preset(g1, BlendMode_LWGUI_ShaderPropertyPreset)] _blendMode ("BlendMode", float) = 0
+		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", Float) = 1
+		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", Float) = 0
 		//GpuAnim------------------------------------------------------------
-		[Header(GpuAnim)]
-		[Toggle] _IsBonesOrVertices ("IsBonesOrVertices", Int) = 0
-		[Toggle] _isNormalTangent ("isNormalTangent", Int) = 0
-		_gpuAnimationMatrix ("GpuAnimationMatrix" , 2D) = "white"
-		_animationPlayedData ("AnimationPlayedData:frame,lastFrame,blend,0" , vector) = (0,0,0,0)	
+		[Main(GpuAnim, _, on, off)] _gpuAnim ("GPU Animation", float) = 0
+		[Preset(GpuAnim, LWGUI_GpuAnimationType)] _gpuAnimType ("GPU Animation Type", float) = 0
+		//[Toggle] _IsBonesOrVertices ("IsBonesOrVertices", Int) = 0
+		[SubToggle(GpuAnim, _ISNORMALTANGENT_ON)] _isNormalTangent ("isNormalTangent", Int) = 1
+		[Tex(GpuAnim)]_gpuAnimationMatrix ("GpuAnimationMatrix" , 2D) = "white"
+		[Sub(GpuAnim)] _animationPlayedData ("AnimationPlayedData:frame,lastFrame,blend,0" , vector) = (0,0,0,0)	
     }
 
         SubShader {
@@ -452,5 +467,5 @@ Shader "RoXami/GpuAnim"
             ENDHLSL
         }
     }
-	//CustomEditor "ToonLitShaderGUI"
+	CustomEditor "LWGUI.LWGUI"
 }

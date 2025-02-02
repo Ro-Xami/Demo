@@ -13,11 +13,13 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ISBONESORVERTICES_ON
+  - _ISNORMALMAP_ON
   - _ISNORMALTANGENT_ON
   m_InvalidKeywords:
   - _ISDEPTHNORMALSPASS_ON
   - _ISDEPTHONLYPASS_ON
   - _ISSHADOWCASTERPASS_ON
+  - _ZWRITEMODE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -49,7 +51,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _normalMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f4510b91ea5b6f2449e1e4a993c0e8dd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -62,34 +64,44 @@ Material:
     - _ZWriteMode: 1
     - _ao: 1
     - _cutOut: 0.5
-    - _diffuseMax: 0.546
-    - _diffuseMin: 0.387
-    - _inSpecMax: 0.5
-    - _inSpecMin: 0.675
+    - _diffuseMax: 0.77935517
+    - _diffuseMin: 0.27924323
+    - _diffuseSlider: 1
+    - _gpuAnim: 0
+    - _gpuAnimType: 0
+    - _group1: 1
+    - _group2: 0
+    - _group3: 0
+    - _group4: 0
+    - _inSpecMax: 1
+    - _inSpecMin: 0.31813908
+    - _inSpecSlider: 1
     - _isAlphaClip: 0
     - _isArmMap: 0
     - _isBrush: 0
     - _isDepthNormalsPass: 1
     - _isDepthOnlyPass: 1
     - _isEmissionMap: 0
-    - _isNormalMap: 0
+    - _isNormalMap: 1
     - _isNormalTangent: 1
     - _isOpaque: 0
     - _isReceiveToonShadow: 0
     - _isShadowCasterPass: 1
     - _metallic: 0
-    - _normalStrength: 0
-    - _roughness: 0.829
-    - _specMax: 0.469
-    - _specMin: 0.452
+    - _normalStrength: 1
+    - _roughness: 0.763
+    - _specMax: 0.86658686
+    - _specMin: 0.8596371
+    - _specSlider: 1
+    - _surfaceOptions: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _animationPlayedData: {r: 0, g: 200, b: 0.67, a: 0}
+    - _animationPlayedData: {r: 0, g: 0, b: 0, a: 0}
     - _brushStrength: {r: 0.1, g: 0.1, b: 0.1, a: 0}
     - _brushTransform: {r: 10, g: 10, b: 10, a: 0}
     - _emissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _inSpecColor: {r: 1, g: 1, b: 1, a: 1}
     - _lightColor: {r: 1, g: 1, b: 1, a: 1}
-    - _shadowColor: {r: 0.6226415, g: 0.28488788, b: 0.34743476, a: 1}
-    - _specColor: {r: 0.28982732, g: 0.3663297, b: 0.3679245, a: 0.5}
+    - _shadowColor: {r: 0.6132076, g: 0.19958171, b: 0.2765354, a: 1}
+    - _specColor: {r: 0.2735849, g: 0.26147902, b: 0.18454076, a: 1}
   m_BuildTextureStacks: []

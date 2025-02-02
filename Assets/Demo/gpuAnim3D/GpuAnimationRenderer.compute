@@ -111,7 +111,7 @@ void GpuAnimationRenderer (uint3 id : SV_DispatchThreadID)
 
 	if (rwData[id.x].blendFactor < 1)
 	{
-		rwData[id.x].blendFactor += deltaTime;
+		rwData[id.x].blendFactor += deltaTime * 2;
 	}
 	else
 	{
