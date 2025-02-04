@@ -67,64 +67,65 @@ Properties {
 			}
 			ENDHLSL
 		}
-		Pass {
-			Name "Brow_L"
-			Tags { "LightMode"="SRPDefaultUnlit" }
-
-			ZTest GEqual
- 
-			HLSLPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
- 
-			struct Attributes {
-				float4 positionOS : POSITION;
-				float2 uv : TEXCOORD0;
-				float3 normal : NORMAL;
-				float4 color : COLOR;
-			};
- 
-			struct Varyings {
-				float4 positionCS : SV_POSITION;
-				float2 uv : TEXCOORD0;
-				float3 normal : TEXCOORD1;
-				float4 color : COLOR;
-			};
- 
-			TEXTURE2D(_MainTex);
-			SAMPLER(sampler_MainTex);
- 
-			Varyings vert(Attributes IN) {
-				Varyings OUT;
-				
-				OUT.normal = TransformObjectToWorldNormal(IN.normal);
-				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
-				OUT.positionCS = positionInputs.positionCS;
-				OUT.uv = OUT.uv = IN.uv;
-				OUT.color = IN.color;
-				return OUT;
-			}
- 
-			half4 frag(Varyings IN) : SV_Target {
-				half4 baseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
- 
-				return baseMap * _Color * IN.color;
-			}
-			ENDHLSL
-		}
-
 		//Pass {
-		//	Name "Outline"
-		//	Cull Front
-		//	ZTest Always
+		//	Name "Brow_L"
+		//	Tags { "LightMode"="SRPDefaultUnlit" }
+
+		//	ZTest GEqual
  
 		//	HLSLPROGRAM
-
-		//	#include "RoXamiOutline.hlsl"
-			
+		//	#pragma vertex vert
+		//	#pragma fragment frag
  
+		//	struct Attributes {
+		//		float4 positionOS : POSITION;
+		//		float2 uv : TEXCOORD0;
+		//		float3 normal : NORMAL;
+		//		float4 color : COLOR;
+		//	};
+ 
+		//	struct Varyings {
+		//		float4 positionCS : SV_POSITION;
+		//		float2 uv : TEXCOORD0;
+		//		float3 normal : TEXCOORD1;
+		//		float4 color : COLOR;
+		//	};
+ 
+		//	TEXTURE2D(_MainTex);
+		//	SAMPLER(sampler_MainTex);
+ 
+		//	Varyings vert(Attributes IN) {
+		//		Varyings OUT;
+				
+		//		OUT.normal = TransformObjectToWorldNormal(IN.normal);
+		//		VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
+		//		OUT.positionCS = positionInputs.positionCS;
+		//		OUT.uv = OUT.uv = IN.uv;
+		//		OUT.color = IN.color;
+		//		return OUT;
+		//	}
+ 
+		//	half4 frag(Varyings IN) : SV_Target {
+		//		half4 baseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
+ 
+		//		return baseMap * _Color * IN.color;
+		//	}
 		//	ENDHLSL
 		//}
+
+		Pass {
+			Name "Outline"
+			Tags { "LightMode"="SRPDefaultUnlit" }
+			Cull Front
+			ZTest Always
+ 
+			HLSLPROGRAM
+
+			#include "RoXamiOutline.hlsl"
+			
+ 
+			ENDHLSL
+		}
 		Pass
         {
             Name "DepthNormals"

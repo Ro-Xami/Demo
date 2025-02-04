@@ -51,10 +51,10 @@ half4x4 extractRotationMatrix(half4x4 m)
     return m;
 }
 
-void ComputeGpuBonesAnimation(Texture2D<float4> tex, float3 positionInput, float4 uv, float3 vertColor, float frameIndex, out float3 positionOutput)
+void ComputeGpuBonesAnimation(Texture2D<float4> tex, float3 positionInput, float4 bonesIndex, float4 boneWeights, float frameIndex, out float3 positionOutput)
 {
-    float weights[4] = { vertColor.x, vertColor.y, vertColor.z, (1 - vertColor.x - vertColor.y - vertColor.z) };
-    float bones[4] = { uv.x, uv.y, uv.z, uv.w };
+    float weights[4] = { boneWeights.x, boneWeights.y, boneWeights.z, boneWeights.w };
+    float bones[4] = { bonesIndex.x, bonesIndex.y, bonesIndex.z, bonesIndex.w };
     positionOutput = float3(0, 0, 0);
     
     for (int i = 0; i < 4; i++)
@@ -74,11 +74,11 @@ void ComputeGpuBonesAnimation(Texture2D<float4> tex, float3 positionInput, float
 }
 
 void ComputeGpuBonesAnimation(Texture2D<float4> tex, float3 positionInput, float3 normalInput , float4 tangentInput ,
-                            float4 uv, float3 vertColor, float frameIndex,
+                            float4 bonesIndex, float4 boneWeights, float frameIndex,
                             out float3 positionOutput , out float3 normalOutput , out float4 tangentOutput)
 {
-    float weights[4] = { vertColor.x, vertColor.y, vertColor.z, (1 - vertColor.x - vertColor.y - vertColor.z) };
-    float bones[4] = { uv.x, uv.y, uv.z, uv.w };
+    float weights[4] = { boneWeights.x, boneWeights.y, boneWeights.z, boneWeights.w };
+    float bones[4] = { bonesIndex.x, bonesIndex.y, bonesIndex.z, bonesIndex.w };
     positionOutput = float3(0, 0, 0);
     normalOutput = float3(0, 0, 0);
     tangentOutput = float4(0, 0, 0, 0);
@@ -103,7 +103,7 @@ void ComputeGpuBonesAnimation(Texture2D<float4> tex, float3 positionInput, float
 }
 
 void ComputeGpuBonesAnimationBlend(Texture2D<float4> tex, float3 positionInput,
-                            float4 uv, float3 vertColor, float4 animationPlayedData,
+                            float4 bonesIndex, float4 boneWeights, float4 animationPlayedData,
                             out float3 positionOutput)
 {
     float frameIndex = animationPlayedData.x;
@@ -116,23 +116,23 @@ void ComputeGpuBonesAnimationBlend(Texture2D<float4> tex, float3 positionInput,
         float3 positionPreview = float3(0, 0, 0);
         
         ComputeGpuBonesAnimation(tex, positionInput
-							    , uv, vertColor, frameLastIndex
+							    , bonesIndex, boneWeights, frameLastIndex
 							    , positionLast);
         ComputeGpuBonesAnimation(tex, positionInput
-							    , uv, vertColor, frameIndex
+							    , bonesIndex, boneWeights, frameIndex
 							    , positionPreview);
         positionOutput = blendData(positionLast, positionPreview, blend);
     }
     else
     {
         ComputeGpuBonesAnimation(tex, positionInput
-							    , uv, vertColor, frameIndex
+							    , bonesIndex, boneWeights, frameIndex
 							    , positionOutput);
     }
 }
 
 void ComputeGpuBonesAnimationBlend(Texture2D<float4> tex, float3 positionInput, float3 normalInput, float4 tangentInput,
-                            float4 uv, float3 vertColor, float4 animationPlayedData,
+                            float4 bonesIndex, float4 boneWeights, float4 animationPlayedData,
                             out float3 positionOutput, out float3 normalOutput, out float4 tangentOutput)
 {
     float frameIndex = animationPlayedData.x;
@@ -149,10 +149,10 @@ void ComputeGpuBonesAnimationBlend(Texture2D<float4> tex, float3 positionInput, 
         float4 tangentPreview = float4(0, 0, 0, 0);
         
         ComputeGpuBonesAnimation(tex, positionInput, normalInput, tangentInput
-							    , uv, vertColor, frameLastIndex
+							    , bonesIndex, boneWeights, frameLastIndex
 							    , positionLast, normalLast, tangentLast);
         ComputeGpuBonesAnimation(tex, positionInput, normalInput, tangentInput
-							    , uv, vertColor, frameIndex
+							    , bonesIndex, boneWeights, frameIndex
 							    , positionPreview, normalPreview, tangentPreview);
         positionOutput = blendData(positionLast, positionPreview, blend);
         normalOutput = blendData(normalLast, normalPreview, blend);
@@ -162,7 +162,7 @@ void ComputeGpuBonesAnimationBlend(Texture2D<float4> tex, float3 positionInput, 
     else
     {
         ComputeGpuBonesAnimation(tex, positionInput, normalInput, tangentInput
-							    , uv, vertColor, frameIndex
+							    , bonesIndex, boneWeights, frameIndex
 							    , positionOutput, normalOutput, tangentOutput);
     }
     tangentOutput.w = tangentInput.w;

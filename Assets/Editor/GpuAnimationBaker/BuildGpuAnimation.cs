@@ -210,26 +210,28 @@ public static class BuildGpuAnimation
     public static void CreatNewMeshBones()
     {
         //存储骨骼索引到UV1的四个分量
-        Vector4[] bonesUV = new Vector4[mesh.vertexCount];
+        Vector4[] bonesUV1 = new Vector4[mesh.vertexCount];
+        Vector4[] bonesWeightsUV2 = new Vector4[mesh.vertexCount];
         for (int i = 0; i < mesh.vertexCount; i++)
         {
-            bonesUV[i] = new Vector4(mesh.boneWeights[i].boneIndex0 * 3,
+            bonesUV1[i] = new Vector4(mesh.boneWeights[i].boneIndex0 * 3,
                                     mesh.boneWeights[i].boneIndex1 * 3,
                                     mesh.boneWeights[i].boneIndex2 * 3,
                                     mesh.boneWeights[i].boneIndex3 * 3);
         }
-        mesh.SetUVs(1, bonesUV);
+        mesh.SetUVs(1, bonesUV1);
 
         //存储骨骼蒙皮权重到顶点颜色
-        Color[] verticesColor = new Color[mesh.vertexCount];
+        //Color[] verticesColor = new Color[mesh.vertexCount];
         for (int i = 0; i < mesh.vertexCount; i++)
         {
-            verticesColor[i] = new Color(mesh.boneWeights[i].weight0, 
-                                        mesh.boneWeights[i].weight1, 
-                                        mesh.boneWeights[i].weight2, 
+            bonesWeightsUV2[i] = new Vector4(mesh.boneWeights[i].weight0,
+                                        mesh.boneWeights[i].weight1,
+                                        mesh.boneWeights[i].weight2,
                                         mesh.boneWeights[i].weight3);
         }
-        mesh.colors = verticesColor;
+        mesh.SetUVs(2, bonesWeightsUV2);
+        //mesh.colors = verticesColor;
         AssetDatabase.CreateAsset(mesh, meshPath);
         AssetDatabase.SaveAssets();
     }

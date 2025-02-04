@@ -54,8 +54,8 @@ Shader "RoXami/GpuAnim"
 		[SubEnum(g4, UnityEngine.Rendering.CullMode)] _CullMode ("CullMode", Float) = 2
 		[SubToggle(g4, _ISRECEIVETOONSHADOW_ON)] _isReceiveToonShadow("isReceiveToonShadow", Int) = 1
 		[Space(10)][g4,Title(Transparent Options)]
-		[SubToggle(g4)] _ZWriteMode ("ZWriteMode ", Float) = 1
-		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTestMode ("ZTestMode", Float) = 4
+		[SubToggle(g4)] _ZWrite ("ZWriteMode ", Float) = 1
+		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTestMode", Float) = 4
 		//[Preset(g1, BlendMode_LWGUI_ShaderPropertyPreset)] _blendMode ("BlendMode", float) = 0
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", Float) = 1
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", Float) = 0
@@ -95,8 +95,8 @@ Shader "RoXami/GpuAnim"
 			Tags {"LightMode" = "UniversalForward"}
 
 			Blend [_SrcBlend] [_DstBlend]
-			ZWrite [_ZWriteMode]
-			ZTest [_ZTestMode]
+			ZWrite [_ZWrite]
+			ZTest [_ZTest]
 			Cull [_CullMode]
 
 		HLSLPROGRAM
@@ -127,6 +127,7 @@ Shader "RoXami/GpuAnim"
 				float4 tangentOS : TANGENT;
 				float2 uv : TEXCOORD0;
 				float4 uv1 : TEXCOORD1;
+				float4 uv2 : TEXCOORD2;
 				float4 color : COLOR;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -158,7 +159,7 @@ Shader "RoXami/GpuAnim"
 #ifdef _ISBONESORVERTICES_ON
 	#ifdef _ISNORMALTANGENT_ON
 					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.normalOS.xyz , IN.tangentOS
-											, IN.uv1 , IN.color.xyz , _animationPlayedData
+											, IN.uv1 , IN.uv2 , _animationPlayedData
 											, positionOut , normalOut , tangentOut);
 
 					VertexNormalInputs normalInputs = GetVertexNormalInputs(normalOut , tangentOut);
@@ -166,7 +167,7 @@ Shader "RoXami/GpuAnim"
 					OUT.tangentWS = normalInputs.tangentWS;
 					OUT.bitangentWS = normalInputs.bitangentWS;
 	#else
-					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.color.xyz , _animationPlayedData, positionOut);
+					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.uv2 , _animationPlayedData, positionOut);
 	#endif
 #else
 					positionOut = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1.xy , _animationPlayedData.x);
@@ -233,6 +234,7 @@ Shader "RoXami/GpuAnim"
 				float4 tangentOS : TANGENT;
 				float2 uv : TEXCOORD0;
 				float4 uv1 : TEXCOORD1;
+				float4 uv2 : TEXCOORD2;
 				float4 color : COLOR;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -271,10 +273,10 @@ Shader "RoXami/GpuAnim"
 #ifdef _ISBONESORVERTICES_ON
 	#ifdef _ISNORMALTANGENT_ON
 					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.normalOS.xyz , IN.tangentOS
-											, IN.uv1 , IN.color.xyz , _animationPlayedData
+											, IN.uv1 , IN.uv2 , _animationPlayedData
 											, positionOut , normalOut , tangentOut);
 	#else
-					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.color.xyz , _animationPlayedData, positionOut);
+					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.uv2 , _animationPlayedData, positionOut);
 	#endif
 #else
 					positionOut = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1.xy , _animationPlayedData.x);
@@ -331,6 +333,7 @@ Shader "RoXami/GpuAnim"
 				float4 positionOS : POSITION;
 				float2 uv : TEXCOORD0;
 				float4 uv1 : TEXCOORD1;
+				float4 uv2 : TEXCOORD2;
 				float4 color : COLOR;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -354,7 +357,7 @@ Shader "RoXami/GpuAnim"
 				float4 tangentOut = float4(0,0,0,0);
 
 #ifdef _ISBONESORVERTICES_ON
-					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.color.xyz , _animationPlayedData, positionOut);
+					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.uv2 , _animationPlayedData, positionOut);
 #else
 					positionOut = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1.xy , _animationPlayedData.x);
 #endif
@@ -407,6 +410,7 @@ Shader "RoXami/GpuAnim"
 				float4 tangentOS : TANGENT;
 				float2 uv : TEXCOORD0;
 				float4 uv1 : TEXCOORD1;
+				float4 uv2 : TEXCOORD2;
 				float4 color : COLOR;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
@@ -434,7 +438,7 @@ Shader "RoXami/GpuAnim"
 #ifdef _ISBONESORVERTICES_ON
 	#ifdef _ISNORMALTANGENT_ON
 					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.normalOS.xyz , IN.tangentOS
-											, IN.uv1 , IN.color.xyz , _animationPlayedData
+											, IN.uv1 , IN.uv2 , _animationPlayedData
 											, positionOut , normalOut , tangentOut);
 
 					VertexNormalInputs normalInputs = GetVertexNormalInputs(normalOut , tangentOut);
@@ -442,7 +446,7 @@ Shader "RoXami/GpuAnim"
 					OUT.tangentWS = normalInputs.tangentWS;
 					OUT.bitangentWS = normalInputs.bitangentWS;
 	#else
-					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.color.xyz , _animationPlayedData, positionOut);
+					ComputeGpuBonesAnimationBlend(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1 , IN.uv2 , _animationPlayedData, positionOut);
 	#endif
 #else
 					positionOut = TransformVertices(_gpuAnimationMatrix , IN.positionOS.xyz , IN.uv1.xy , _animationPlayedData.x);

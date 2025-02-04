@@ -14,7 +14,7 @@ public class GpuAnimationBakerWindow : EditorWindow
     protected SerializedProperty AnimationClipsProperty;
 
     public bool isNormalTangent = true;
-    public GPUAnimMode animMode;
+    public GPUAnimMode animMode = GPUAnimMode.GpuBonesAnimation;
 
     public int frame = 60;
     public string savePath = "Asset";
@@ -44,11 +44,11 @@ public class GpuAnimationBakerWindow : EditorWindow
 
         GUILayout.Space(10);
 
-        GuiSetFilePath();
+        savePath = EditorTools.GuiSetFilePath(savePath, "File");
 
         GUILayout.Space(10);
 
-        GuiSetPrefabPath();
+        savePrefabPath = EditorTools.GuiSetFilePath(savePrefabPath, "Prefab");
 
         GUILayout.Space(10);
 
@@ -72,44 +72,6 @@ public class GpuAnimationBakerWindow : EditorWindow
         {//提交修改
             _serializedObject.ApplyModifiedProperties();
         }
-    }
-    public void GuiSetFilePath()
-    {
-        GUILayout.Label("Set File Path", EditorStyles.boldLabel);
-        // 设置文件路径
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("File Path:", GUILayout.Width(75));
-        savePath = EditorGUILayout.TextField(savePath);
-        if (GUILayout.Button("Browse", GUILayout.Width(100)))
-        {
-            // 选择文件夹路径
-            string selectedPath = EditorUtility.OpenFolderPanel("Select Folder", "Assets", "");
-            if (!string.IsNullOrEmpty(selectedPath))
-            {
-                // 去除项目路径外的部分，确保路径是相对的
-                savePath = "Assets" + selectedPath.Substring(UnityEngine.Application.dataPath.Length);
-            }
-        }
-        GUILayout.EndHorizontal();
-    }
-    public void GuiSetPrefabPath()
-    {
-        GUILayout.Label("Set Prefab Path and Name", EditorStyles.boldLabel);
-        // 设置文件路径
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("Prefab Path:", GUILayout.Width(75));
-        savePrefabPath = EditorGUILayout.TextField(savePrefabPath);
-        if (GUILayout.Button("Browse", GUILayout.Width(100)))
-        {
-            // 选择文件夹路径
-            string selectedPath = EditorUtility.OpenFolderPanel("Select Folder", "Assets", "");
-            if (!string.IsNullOrEmpty(selectedPath))
-            {
-                // 去除项目路径外的部分，确保路径是相对的
-                savePrefabPath = "Assets" + selectedPath.Substring(UnityEngine.Application.dataPath.Length);
-            }
-        }
-        GUILayout.EndHorizontal();
     }
     public enum GPUAnimMode
     {

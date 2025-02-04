@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1918686020657360964
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -7,32 +20,18 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Plane
-  m_Shader: {fileID: 4800000, guid: c00e0834d2e99ad43bfa4eb5f3c035c6, type: 3}
+  m_Name: OutLine
+  m_Shader: {fileID: 4800000, guid: 1470ed91fe92dc748a8f1766d1a33d46, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _ISRECEIVETOONSHADOW_ON
-  m_InvalidKeywords:
-  - _GROUP_ON
-  - _ISBRUSH
-  - _ISDEPTHNORMALSPASS_ON
-  - _ISDEPTHONLYPASS_ON
-  - _ISSHADOWCASTERPASS_ON
-  - _KEYWORD
-  - _SHADOW
-  - _ZWRITEMODE_ON
-  - _ZWRITE_ON
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
-  stringTagMap:
-    QUEUE: Geometry
-    RenderType: Opaque
-  disabledShaderPasses:
-  - DepthNormals
-  - DepthOnly
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -81,26 +80,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _baseMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _brush:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _emissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _maskMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _normalMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -118,13 +97,11 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Blend: 0
-    - _BlendMode: 1
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _CullMode: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
@@ -136,6 +113,7 @@ Material:
     - _GlossyReflections: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OutlineSize: 99.64
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
@@ -146,67 +124,11 @@ Material:
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _WorkflowMode: 1
-    - _ZTest: 4
-    - _ZTestMode: 4
     - _ZWrite: 1
-    - _ZWriteMode: 1
-    - _ao: 1
-    - _blendMode: 0
-    - _cutOut: 0.5
-    - _diffuseMax: 0.75
-    - _diffuseMin: 0.5
-    - _diffuseSlider: 1
-    - _enum: 0
-    - _group: 1
-    - _group1: 1
-    - _group2: 0
-    - _group3: 0
-    - _group4: 0
-    - _inSpecMax: 0.75
-    - _inSpecMin: 0.5
-    - _inSpecSlider: 1
-    - _isAlphaClip: 0
-    - _isArmMap: 0
-    - _isBrush: 1
-    - _isDepthNormalsPass: 1
-    - _isDepthOnlyPass: 1
-    - _isEmissionMap: 0
-    - _isNormalMap: 0
-    - _isOpaque: 0
-    - _isReceiveToonShadow: 1
-    - _isShadowCasterPass: 1
-    - _metallic: 0
-    - _minMaxSlider: 1
-    - _normalStrength: 0
-    - _roughness: 0.898
-    - _specMax: 1
-    - _specMin: 0.7
-    - _specSlider: 1
-    - _surfaceOptions: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _brushStrength: {r: 0.1, g: 0.1, b: 0.1, a: 0}
-    - _brushTransform: {r: 10, g: 10, b: 10, a: 0}
-    - _diffuseColor: {r: 1, g: 0.9764151, b: 0.9764151, a: 1}
-    - _emissionColor: {r: 0, g: 0, b: 0, a: 0}
-    - _inSpecColor: {r: 0.740566, g: 0.9690448, b: 1, a: 1}
-    - _lightColor: {r: 1, g: 1, b: 1, a: 1}
-    - _shadowColor: {r: 0.6509434, g: 0.00618316, b: 0, a: 1}
-    - _specColor: {r: 0.7924528, g: 0.6224787, b: 0.50462794, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &3103138811658179420
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 7

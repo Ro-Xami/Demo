@@ -21,7 +21,7 @@ struct Attributes {
 
 				float3 normal = normalize(TransformObjectToWorldNormal(IN.normal));
 
-				IN.positionOS.xyz += normal * _OutlineSize * 0.001 * IN.color;
+				IN.positionOS.xyz += (IN.color.xyz * 2 - 1) * _OutlineSize * 0.001;
 				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
 				OUT.positionCS = positionInputs.positionCS;
 				OUT.uv = IN.uv;

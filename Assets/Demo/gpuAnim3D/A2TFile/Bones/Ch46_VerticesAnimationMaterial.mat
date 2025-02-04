@@ -20,10 +20,11 @@ Material:
   - _ISDEPTHONLYPASS_ON
   - _ISSHADOWCASTERPASS_ON
   - _ZWRITEMODE_ON
+  - _ZWRITE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -58,9 +59,10 @@ Material:
     m_Floats:
     - _CullMode: 2
     - _DstBlend: 0
-    - _IsBonesOrVertices: 1
     - _SrcBlend: 1
+    - _ZTest: 4
     - _ZTestMode: 4
+    - _ZWrite: 1
     - _ZWriteMode: 1
     - _ao: 1
     - _cutOut: 0.5
@@ -78,15 +80,10 @@ Material:
     - _inSpecSlider: 1
     - _isAlphaClip: 0
     - _isArmMap: 0
-    - _isBrush: 0
-    - _isDepthNormalsPass: 1
-    - _isDepthOnlyPass: 1
     - _isEmissionMap: 0
     - _isNormalMap: 1
     - _isNormalTangent: 1
-    - _isOpaque: 0
     - _isReceiveToonShadow: 0
-    - _isShadowCasterPass: 1
     - _metallic: 0
     - _normalStrength: 1
     - _roughness: 0.763
@@ -102,6 +99,6 @@ Material:
     - _emissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _inSpecColor: {r: 1, g: 1, b: 1, a: 1}
     - _lightColor: {r: 1, g: 1, b: 1, a: 1}
-    - _shadowColor: {r: 0.6132076, g: 0.19958171, b: 0.2765354, a: 1}
-    - _specColor: {r: 0.2735849, g: 0.26147902, b: 0.18454076, a: 1}
+    - _shadowColor: {r: 0.6132076, g: 0.19958168, b: 0.27653536, a: 1}
+    - _specColor: {r: 0.27358484, g: 0.261479, b: 0.18454072, a: 1}
   m_BuildTextureStacks: []

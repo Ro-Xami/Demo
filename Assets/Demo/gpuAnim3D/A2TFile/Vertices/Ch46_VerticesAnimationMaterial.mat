@@ -12,11 +12,13 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _ISBONESORVERTICES_ON
   - _ISNORMALTANGENT_ON
   m_InvalidKeywords:
   - _ISDEPTHNORMALSPASS_ON
   - _ISDEPTHONLYPASS_ON
   - _ISSHADOWCASTERPASS_ON
+  - _ZWRITEMODE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -63,8 +65,16 @@ Material:
     - _cutOut: 0.5
     - _diffuseMax: 0.75
     - _diffuseMin: 0.5
+    - _diffuseSlider: 1
+    - _gpuAnim: 0
+    - _gpuAnimType: 0
+    - _group1: 1
+    - _group2: 0
+    - _group3: 0
+    - _group4: 0
     - _inSpecMax: 0.75
     - _inSpecMin: 0.5
+    - _inSpecSlider: 1
     - _isAlphaClip: 0
     - _isArmMap: 0
     - _isBrush: 0
@@ -81,6 +91,8 @@ Material:
     - _roughness: 0.5
     - _specMax: 1
     - _specMin: 0.7
+    - _specSlider: 1
+    - _surfaceOptions: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _animationPlayedData: {r: 0, g: 0, b: 0, a: 0}

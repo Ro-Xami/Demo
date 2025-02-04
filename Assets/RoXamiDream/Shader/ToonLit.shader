@@ -54,8 +54,8 @@ Shader "RoXami/ToonLit"
 		[SubEnum(g4, UnityEngine.Rendering.CullMode)] _CullMode ("CullMode", Float) = 2
 		[SubToggle(g4, _ISRECEIVETOONSHADOW_ON)] _isReceiveToonShadow("isReceiveToonShadow", Int) = 1
 		[Space(10)][g4,Title(Transparent Options)]
-		[SubToggle(g4)] _ZWriteMode ("ZWriteMode ", Float) = 1
-		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTestMode ("ZTestMode", Float) = 4
+		[SubToggle(g4)] _ZWrite ("ZWriteMode ", Float) = 1
+		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTestMode", Float) = 4
 		//[Preset(g1, BlendMode_LWGUI_ShaderPropertyPreset)] _blendMode ("BlendMode", float) = 0
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", Float) = 1
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", Float) = 0
@@ -82,8 +82,8 @@ Shader "RoXami/ToonLit"
 			Tags {"LightMode" = "UniversalForward"}
 
 			Blend [_SrcBlend] [_DstBlend]
-			ZWrite [_ZWriteMode]
-			ZTest [_ZTestMode]
+			ZWrite [_ZWrite]
+			ZTest [_ZTest]
 			Cull [_CullMode]
 
 		HLSLPROGRAM
