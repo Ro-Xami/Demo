@@ -1,6 +1,6 @@
 		CBUFFER_START(UnityPerMaterial)
 		half _cutOut;
-		half4 _baseMap_ST;
+		half4 _BaseMap_ST;
 		CBUFFER_END
 
 			struct Attributes {
@@ -41,7 +41,7 @@
 				float3 normalWS = TransformObjectToWorldNormal(IN.normalOS);
 				positionWS = ApplyShadowBias(positionWS, normalWS, _LightDirection);
                 OUT.positionCS = TransformWorldToHClip(positionWS);
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv , _BaseMap);
 
 				return OUT;
 			}

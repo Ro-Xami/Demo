@@ -5,21 +5,21 @@ Shader "RoXami/GpuAnim"
 		//PBR
 		[Main(g1, _, on, off)]_group1 ("PBR Rendering", float) = 1
 		[g1,Title(Base Color)]
-		[Sub(g1)] _Color ("Color" , Color) = (1 , 1 , 1 , 1)
-        [Sub(g1)] _baseMap ("BaseMap", 2D) = "white" {}
+		[Sub(g1)] _BaseColor ("Color" , Color) = (1 , 1 , 1 , 1)
+        [Sub(g1)] _BaseMap ("BaseMap", 2D) = "white" {}
 		[Space(10)][g1,Title(Normal)]
 		[SubToggle(g1, _ISNORMALMAP_ON)] _isNormalMap("isNormalMap", Int) = 0
-		[Tex(g1)][Normal] _normalMap ("NormalMap", 2D) = "Bump" {}
+		[Tex(g1)][Normal] _NormalMap ("NormalMap", 2D) = "Bump" {}
 		[Sub(g1)]_normalStrength ("NormalScale" , float) = 0
 		[Space(10)][g1,Title(PBR)]
 		[SubToggle(g1, _ISARMMAP_ON)] _isArmMap("isArmMap", Int) = 0
-		[Tex(g1)]_maskMap ("ArmMap", 2D) = "white" {}
+		[Tex(g1)]_MaskMap ("ArmMap", 2D) = "white" {}
 		[Sub(g1)]_ao ("AO" , Range(0 , 1)) = 1
 		[Sub(g1)]_roughness ("Roughness" , Range(0 , 1)) = 0.5
 		[Sub(g1)]_metallic ("Metallic" , Range(0 , 1)) = 0
 		[Space(10)][g1,Title(Emission)]
 		[SubToggle(g1, _ISEMISSIONMAP_ON)] _isEmissionMap("isEmissionMap", Int) = 0
-		[Tex(g1)][NoScaleOffset] _emissionMap ("EmissionMap", 2D) = "white" {}
+		[Tex(g1)][NoScaleOffset] _EmissionMap ("EmissionMap", 2D) = "white" {}
 		[Sub(g1)][HDR] _emissionColor ("EmissiveColor" , Color) = (0 , 0 , 0 , 0)
 		//Toon
 		[Main(g2, _, on, off)]_group2 ("Toon Rendering", float) = 0
@@ -187,7 +187,7 @@ Shader "RoXami/GpuAnim"
 
 				OUT.viewWS = SafeNormalize(GetCameraPositionWS() - OUT.positionWS);
 				OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
-				OUT.uv = TRANSFORM_TEX(IN.uv, _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
 
 				return OUT;
 			}
@@ -210,7 +210,7 @@ Shader "RoXami/GpuAnim"
 
 			CBUFFER_START(UnityPerMaterial)
 		half _cutOut;
-		half4 _baseMap_ST;
+		half4 _BaseMap_ST;
 		float4 _animationPlayedData;
 		CBUFFER_END
 
@@ -289,7 +289,7 @@ Shader "RoXami/GpuAnim"
 				float3 normalWS = TransformObjectToWorldNormal(normalOut);
 				positionWS = ApplyShadowBias(positionWS, normalWS, _LightDirection);
                 OUT.positionCS = TransformWorldToHClip(positionWS);
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv , _BaseMap);
 
 				return OUT;
 			}
@@ -311,7 +311,7 @@ Shader "RoXami/GpuAnim"
 
 			CBUFFER_START(UnityPerMaterial)
 		half _cutOut;
-		half4 _baseMap_ST;
+		half4 _BaseMap_ST;
 		float4 _animationPlayedData;
 		CBUFFER_END
 
@@ -363,7 +363,7 @@ Shader "RoXami/GpuAnim"
 #endif
 
 				OUT.positionCS = TransformObjectToHClip(positionOut);
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv , _BaseMap);
 
 				return OUT;
 			}
@@ -385,7 +385,7 @@ Shader "RoXami/GpuAnim"
 
 			CBUFFER_START(UnityPerMaterial)
 		half _cutOut;
-		half4 _baseMap_ST;
+		half4 _BaseMap_ST;
 		half _normalStrength;
 		float4 _animationPlayedData;
 		CBUFFER_END
@@ -461,7 +461,7 @@ Shader "RoXami/GpuAnim"
 	#endif
 #endif
 				OUT.positionCS = TransformObjectToHClip(positionOut);
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv , _BaseMap);
 
 				return OUT;
 			}

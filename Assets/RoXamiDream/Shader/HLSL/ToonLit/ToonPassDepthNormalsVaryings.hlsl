@@ -1,6 +1,6 @@
 		CBUFFER_START(UnityPerMaterial)
 		half _cutOut;
-		half4 _baseMap_ST;
+		half4 _BaseMap_ST;
 		half _normalStrength;
 		CBUFFER_END
 
@@ -34,7 +34,7 @@
 				OUT.normalWS = normalInputs.normalWS;
 				OUT.tangentWS = normalInputs.tangentWS;
 				OUT.bitangentWS = normalInputs.bitangentWS;
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv , _BaseMap);
 
 				return OUT;
 			}

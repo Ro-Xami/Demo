@@ -39,7 +39,7 @@ struct Attributes {
 				OUT.viewWS = SafeNormalize(GetCameraPositionWS() - OUT.positionWS);
 				OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
 				OUT.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(OUT.positionCS);
-				OUT.uv = TRANSFORM_TEX(IN.uv, _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
 
 				return OUT;
 			}

@@ -1,6 +1,6 @@
 Shader "RoXami/Girl/Face" {
 	Properties {
-		_Color ("Color", Color) = (1, 1, 1, 1)
+		_BaseColor ("Color", Color) = (1, 1, 1, 1)
 		_MainTex ("MainTex", 2D) = "white" {}
 		_LightMap ("LightMap" ,2D) = "white" {}
 		_Lut ("Lut" , 2D) = "white" {}
@@ -27,7 +27,7 @@ Shader "RoXami/Girl/Face" {
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
  
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Color;
+			float4 _BaseColor;
 			float4 _SpecColor;
 			float _RimOffest;
 			float _Threshold;
@@ -131,7 +131,7 @@ Shader "RoXami/Girl/Face" {
 				float isShadow = step(isFront , LightMap);
 				float LightShadow = smoothstep(0 , _ShadowHard , abs(LightMap - isFront)) * isShadow;
 
-				float4 ToonColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * _Color * LightColor;
+				float4 ToonColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * _BaseColor * LightColor;
 				float3 Toon = SAMPLE_TEXTURE2D(_Lut, sampler_Lut, float2(0 , LightShadow));
 				float OffsetDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture , sampler_CameraDepthTexture , OffestSamplePos);
                 float Depth = SAMPLE_TEXTURE2D(_CameraDepthTexture , sampler_CameraDepthTexture , ScreenPosition);
@@ -159,7 +159,7 @@ Shader "RoXami/Girl/Face" {
  
 			HLSLPROGRAM
 
-			#include "RoXamiOutline.hlsl"
+			#include "../HLSL/NPR/NPROutline.hlsl"
 			
  
 			ENDHLSL
@@ -188,7 +188,7 @@ Shader "RoXami/Girl/Face" {
 
             // -------------------------------------
             // Material Keywords
-            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NormalMap
             #pragma shader_feature_local _PARALLAXMAP
             #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma shader_feature_local_fragment _ALPHATEST_ON

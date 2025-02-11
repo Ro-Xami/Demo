@@ -78,14 +78,14 @@ public class GpuVerticesToonLitShaderGUI : ShaderGUI
         if (isPbr)
         {
             //Base
-            MaterialProperty color = FindProperty("_Color", properties, true);
-            MaterialProperty baseMap = FindProperty("_baseMap", properties, true);
+            MaterialProperty color = FindProperty("_BaseColor", properties, true);
+            MaterialProperty baseMap = FindProperty("_BaseMap", properties, true);
             GUIContent baseMapContent = new GUIContent(baseMap.displayName, baseMap.textureValue, "BaseMap");
             materialEditor.TexturePropertySingleLine(baseMapContent, baseMap, color);
 
             GUILayout.Space(2);
             //Normal
-            MaterialProperty normalMap = FindProperty("_normalMap", properties, true);
+            MaterialProperty normalMap = FindProperty("_NormalMap", properties, true);
             MaterialProperty normalStrength = FindProperty("_normalStrength", properties, true);
             GUIContent normalMapContent = new GUIContent(normalMap.displayName, normalMap.textureValue, "NormalMap");
 
@@ -116,7 +116,7 @@ public class GpuVerticesToonLitShaderGUI : ShaderGUI
 
             GUILayout.Space(2);
             //ARM
-            MaterialProperty armMap = FindProperty("_maskMap", properties, true);
+            MaterialProperty armMap = FindProperty("_MaskMap", properties, true);
             MaterialProperty ao = FindProperty("_ao", properties, true);
             MaterialProperty roughness = FindProperty("_roughness", properties, true);
             MaterialProperty metallic = FindProperty("_metallic", properties, true);
@@ -153,7 +153,7 @@ public class GpuVerticesToonLitShaderGUI : ShaderGUI
             EditorGUI.indentLevel--;
             GUILayout.Space(2);
             //Emission
-            MaterialProperty emissionMap = FindProperty("_emissionMap", properties, true);
+            MaterialProperty emissionMap = FindProperty("_EmissionMap", properties, true);
             MaterialProperty emissionColor = FindProperty("_emissionColor", properties, true);
 
             if (emissionMap != null && emissionMap.textureValue != null)

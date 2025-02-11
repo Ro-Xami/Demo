@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static GpuAnimationBakerWindow;
+using static UnityEditor.UIElements.CurveField;
 
 public class SmoothNormalsBaker : EditorWindow
 {
     public GameObject obj;
+    public MeshRenderMode renderMode;
     public string savePath;
 
     [MenuItem("RoXamiTools/MeshEditor/SmoothNormals")]
@@ -16,6 +19,7 @@ public class SmoothNormalsBaker : EditorWindow
     public void OnGUI()
     {
         obj = (GameObject)EditorGUILayout.ObjectField("Mesh", obj, typeof(GameObject), false);
+        renderMode = (MeshRenderMode)EditorGUILayout.EnumPopup("MeshRenderMode", renderMode);
         savePath = EditorTools.GuiSetFilePath(savePath, "File");
 
         GUILayout.Space(10);
@@ -27,11 +31,44 @@ public class SmoothNormalsBaker : EditorWindow
 
     public void SmoothNormals()
     {
-        MeshFilter[] mf = obj.GetComponentsInChildren<MeshFilter>();
-        
-        for (int i = 0; i < mf.Length; i++)
+        switch (renderMode)
         {
-            Mesh mesh = GameObject.Instantiate(mf[i].sharedMesh);
+            case MeshRenderMode.SkinnedMeshRenderer:
+                SkinnedMeshRenderer[] skMesh = obj.GetComponentsInChildren<SkinnedMeshRenderer>();
+                if (skMesh.Length == 0)
+                {
+                    Debug.LogError("There is no SkinnedMeshRenderer Component!");
+                    return;
+                }
+                Mesh[] meshesS = new Mesh[skMesh.Length];
+                for (int i = 0; i < skMesh.Length; i++)
+                {
+                    meshesS[i] = skMesh[i].sharedMesh;
+                }
+                SmoothNormalsAndCreat(meshesS);
+                break;
+            case MeshRenderMode.MeshFilter:
+                MeshFilter[] mf = obj.GetComponentsInChildren<MeshFilter>();
+                if (mf.Length == 0)
+                {
+                    Debug.LogError("There is no MeshFilter Component!");
+                    return;
+                }
+                Mesh[] meshesF = new Mesh[mf.Length];
+                for (int i = 0; i < mf.Length; i++)
+                {
+                    meshesF[i] = mf[i].sharedMesh;
+                }
+                SmoothNormalsAndCreat(meshesF);
+                break;
+        }    
+    }
+
+    public void SmoothNormalsAndCreat(Mesh[] meshes)
+    {
+        for (int i = 0; i < meshes.Length; i++)
+        {
+            Mesh mesh = GameObject.Instantiate(meshes[i]);
 
             Vector3[] vertices = mesh.vertices;
             int[] triangles = mesh.triangles;
@@ -69,8 +106,14 @@ public class SmoothNormalsBaker : EditorWindow
                 }
             }
             mesh.SetColors(colors);
-            AssetDatabase.CreateAsset(mesh, savePath + "/" + mf[i].sharedMesh.name + ".asset");
+            AssetDatabase.CreateAsset(mesh, savePath + "/" + meshes[i].name + ".asset");
             AssetDatabase.SaveAssets(); // ±£´æ¸Ä¶¯
         }
+    }
+
+    public enum MeshRenderMode
+    {
+        MeshFilter = 0,
+        SkinnedMeshRenderer = 1,
     }
 }

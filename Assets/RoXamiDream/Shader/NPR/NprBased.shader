@@ -1,4 +1,4 @@
-Shader "RoXami/ToonLit"
+Shader "RoXami/NPR/Based"
 {
     Properties
     {
@@ -39,11 +39,10 @@ Shader "RoXami/ToonLit"
 		[MinMaxSlider(g2,_inSpecMin, _inSpecMax)] _inSpecSlider ("inSpec Slider", Range(0.0, 1.0)) = 1.0
 		[HideInInspector]_inSpecMin ("InSpecMin" , Range(0 , 1)) = 0.5
 		[HideInInspector]_inSpecMax ("InSpecMax" , Range(0 , 1)) = 0.75
-		//Brush
-		[Main(g3, _ISBRUSH_ON, off)]_group3 ("Toon Brush", float) = 0
-		[Sub(g3)][NoScaleOffset]_brush ("BrushMap" , 2D) = "white" {}
-		[Sub(g3)]_brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
-		[Sub(g3)]_brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
+		//Outline
+		[Main(g3, _, on, off)]_group3 ("Outline", float) = 0
+		[Sub(g3)] _outlineSize ("OutlineSize" , Range(0,1)) = 0.1
+		[Sub(g3)] _outlineColor ("OutlineColor" , color) = (0,0,0,1)
 		//SurfaceOptions
 		[Main(g4, _, on, off)]_group4 ("Surface Options", float) = 0
 		[g4,Title(Render Type)]
@@ -56,7 +55,6 @@ Shader "RoXami/ToonLit"
 		[Space(10)][g4,Title(Transparent Options)]
 		[SubToggle(g4)] _ZWrite ("ZWriteMode ", Float) = 1
 		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTestMode", Float) = 4
-		//[Preset(g1, BlendMode_LWGUI_ShaderPropertyPreset)] _blendMode ("BlendMode", float) = 0
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", Float) = 1
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", Float) = 0
     }
@@ -89,7 +87,7 @@ Shader "RoXami/ToonLit"
 		HLSLPROGRAM
 
 		CBUFFER_START(UnityPerMaterial)
-		#include "HLSL/ToonLit/ToonLitCbuffer.hlsl"
+		#include "../HLSL/NPR/NPRBasedCbuffer.hlsl"
 		CBUFFER_END
 
 		#ifdef INSTANCING_ON
@@ -105,12 +103,24 @@ Shader "RoXami/ToonLit"
 			#pragma fragment frag
 			#pragma multi_compile_instancing
 
-			#include "HLSL/ToonLit/ToonLitVaryings.hlsl"
+			#include "../HLSL/ToonLit/ToonLitVaryings.hlsl"
 
-			#include_with_pragmas "HLSL/ToonLit/ToonLitFragment.hlsl"			
+			#include_with_pragmas "../HLSL/NPR/NPRBasedFragment.hlsl"			
 			
 			ENDHLSL
 		}
+
+		Pass 
+			{
+			Name "Outline"
+			Cull Front
+ 
+			HLSLPROGRAM
+
+			#include "../HLSL/NPR/NPROutline.hlsl"
+			
+			ENDHLSL
+			}
 
 		Pass
         {
@@ -128,8 +138,8 @@ Shader "RoXami/ToonLit"
             #pragma fragment frag
 			#pragma multi_compile_instancing
 
-			#include "HLSL/ToonLit/ToonPassShadowCastVaryings.hlsl"
-			#include "HLSL/ToonLit/ToonPassShadowCastFragment.hlsl"
+			#include "../HLSL/ToonLit/ToonPassShadowCastVaryings.hlsl"
+			#include "../HLSL/ToonLit/ToonPassShadowCastFragment.hlsl"
 		
             ENDHLSL
         }
@@ -150,8 +160,8 @@ Shader "RoXami/ToonLit"
             #pragma fragment frag
 			#pragma multi_compile_instancing
 
-			#include "HLSL/ToonLit/ToonPassDepthOnlyVaryings.hlsl"
-			#include "HLSL/ToonLit/ToonPassDepthOnlyFragment.hlsl"
+			#include "../HLSL/ToonLit/ToonPassDepthOnlyVaryings.hlsl"
+			#include "../HLSL/ToonLit/ToonPassDepthOnlyFragment.hlsl"
 
             ENDHLSL
         }
@@ -172,8 +182,8 @@ Shader "RoXami/ToonLit"
             #pragma fragment frag
 			#pragma multi_compile_instancing
 
-			#include "HLSL/ToonLit/ToonPassDepthNormalsVaryings.hlsl"
-			#include "HLSL/ToonLit/ToonPassDepthNormalsFragment.hlsl"
+			#include "../HLSL/ToonLit/ToonPassDepthNormalsVaryings.hlsl"
+			#include "../HLSL/ToonLit/ToonPassDepthNormalsFragment.hlsl"
 
             ENDHLSL
         }

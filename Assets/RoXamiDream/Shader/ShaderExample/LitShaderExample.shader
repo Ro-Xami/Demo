@@ -7,7 +7,7 @@ Shader "RoXami/Example/LitShaderExample" {
 		[Toggle(_ALPHATEST_ON)] _EnableAlphaTest("Enable Alpha Cutoff", Float) = 0.0
 		_Cutoff ("Alpha Cutoff", Float) = 0.5
  
-		[Toggle(_NORMALMAP)] _EnableBumpMap("Enable Normal/Bump Map", Float) = 0.0
+		[Toggle(_NormalMap)] _EnableBumpMap("Enable Normal/Bump Map", Float) = 0.0
 		_BumpMap ("Normal/Bump Texture", 2D) = "bump" {}
 		_BumpScale ("Bump Scale", Float) = 1
  
@@ -46,7 +46,7 @@ Shader "RoXami/Example/LitShaderExample" {
 			#pragma fragment frag
  
 			// Material Keywords
-			#pragma shader_feature _NORMALMAP
+			#pragma shader_feature _NormalMap
 			#pragma shader_feature _ALPHATEST_ON
 			#pragma shader_feature _ALPHAPREMULTIPLY_ON
 			#pragma shader_feature _EMISSION
@@ -97,7 +97,7 @@ Shader "RoXami/Example/LitShaderExample" {
 				#endif
  
 				float3 normalWS					: TEXCOORD3;
-				#ifdef _NORMALMAP
+				#ifdef _NormalMap
 					float4 tangentWS 			: TEXCOORD4;
 				#endif
  
@@ -144,7 +144,7 @@ Shader "RoXami/Example/LitShaderExample" {
  
 				VertexNormalInputs normalInputs = GetVertexNormalInputs(IN.normalOS, IN.tangentOS);
 				OUT.normalWS =  normalInputs.normalWS;
-				#ifdef _NORMALMAP
+				#ifdef _NormalMap
 					real sign = IN.tangentOS.w * GetOddNegativeScale();
 					OUT.tangentWS = half4(normalInputs.tangentWS.xyz, sign);
 				#endif
@@ -172,7 +172,7 @@ Shader "RoXami/Example/LitShaderExample" {
 				#endif
  
 				half3 viewDirWS = SafeNormalize(IN.viewDirWS);
-				#ifdef _NORMALMAP
+				#ifdef _NormalMap
 					float sgn = IN.tangentWS.w; // should be either +1 or -1
 					float3 bitangent = sgn * cross(IN.normalWS.xyz, IN.tangentWS.xyz);
 					inputData.normalWS = TransformTangentToWorld(normalTS, half3x3(IN.tangentWS.xyz, bitangent.xyz, IN.normalWS.xyz));

@@ -1,11 +1,11 @@
 #if defined(_ISALPHACLIP_ON)
-	TEXTURE2D(_baseMap);
-	SAMPLER(sampler_baseMap);
+	TEXTURE2D(_BaseMap);
+	SAMPLER(sampler_BaseMap);
 #endif
 
 #if defined(_ISNORMALMAP_ON)
-	TEXTURE2D(_normalMap);
-	SAMPLER(sampler_normalMap);
+	TEXTURE2D(_NormalMap);
+	SAMPLER(sampler_NormalMap);
 #endif
 
             half4 frag(Varyings IN) : SV_Target
@@ -14,7 +14,7 @@
 
 				half3 normal = IN.normalWS;
 #ifdef _ISNORMALMAP_ON
-				half4 normalMap = SAMPLE_TEXTURE2D(_normalMap, sampler_normalMap, IN.uv);
+				half4 normalMap = SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv);
 				half3x3 TBN = {IN.tangentWS.xyz, IN.bitangentWS.xyz, IN.normalWS.xyz};
                 TBN = transpose(TBN);
                 half3 norTS = UnpackNormalScale(normalMap, _normalStrength);
@@ -24,7 +24,7 @@
 #endif
 
 #ifdef _ISALPHACLIP_ON
-				half albedo = SAMPLE_TEXTURE2D(_baseMap, sampler_baseMap, IN.uv).a;
+				half albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv).a;
 				clip(albedo - _cutOut);
 #else
 #endif

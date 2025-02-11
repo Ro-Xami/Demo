@@ -1,7 +1,7 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
-#include_with_pragmas "ToonLitFragInput.hlsl"
+#include_with_pragmas "NPRBasedFragInput.hlsl"
 
 #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
 #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
@@ -53,8 +53,8 @@ half4 frag(Varyings IN) : SV_Target {
 #else
 #endif
 				//pbrData
-				half ao = mask.r * _ao;
-				half roughness = mask.g * _roughness;
+				half ao = mask.b * _ao;
+				half roughness = mask.r * _roughness;
 				half metallic = mask.b * _metallic;
 				emissive *= _emissionColor; 
 				

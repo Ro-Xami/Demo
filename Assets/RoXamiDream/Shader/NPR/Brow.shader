@@ -1,6 +1,6 @@
 Shader "RoXami/Girl/Brow"{
 Properties {
-		_Color ("Color", Color) = (1, 1, 1, 1)
+		_BaseColor ("Color", Color) = (1, 1, 1, 1)
 		[NoScaleOffset]_MainTex ("MainTex", 2D) = "white" {}
 
 		[Header(OutLine)]
@@ -16,7 +16,7 @@ Properties {
 			
  
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Color;
+			float4 _BaseColor;
 			float4 _OutlineColor;
 			float _OutlineSize;
 			CBUFFER_END
@@ -63,7 +63,7 @@ Properties {
 			half4 frag(Varyings IN) : SV_Target {
 				half4 baseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
  
-				return baseMap * _Color * IN.color;
+				return baseMap * _BaseColor * IN.color;
 			}
 			ENDHLSL
 		}
@@ -108,7 +108,7 @@ Properties {
 		//	half4 frag(Varyings IN) : SV_Target {
 		//		half4 baseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
  
-		//		return baseMap * _Color * IN.color;
+		//		return baseMap * _BaseColor * IN.color;
 		//	}
 		//	ENDHLSL
 		//}
@@ -149,7 +149,7 @@ Properties {
 
             // -------------------------------------
             // Material Keywords
-            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NormalMap
             #pragma shader_feature_local _PARALLAXMAP
             #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma shader_feature_local_fragment _ALPHATEST_ON

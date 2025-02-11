@@ -31,6 +31,22 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 2d37f24997c6bdd43b05f9b5deecd67d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: f4510b91ea5b6f2449e1e4a993c0e8dd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _baseMap:
         m_Texture: {fileID: 2800000, guid: 2d37f24997c6bdd43b05f9b5deecd67d, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -92,6 +108,7 @@ Material:
     - _specSlider: 1
     - _surfaceOptions: 0
     m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _animationPlayedData: {r: 0, g: 0, b: 0, a: 0}
     - _brushStrength: {r: 0.1, g: 0.1, b: 0.1, a: 0}

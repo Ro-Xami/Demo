@@ -1,6 +1,6 @@
 Shader "RoXami/Girl/Hair_G-1" {
 	Properties {
-		_Color ("Color", Color) = (1, 1, 1, 1)
+		_BaseColor ("Color", Color) = (1, 1, 1, 1)
 		_MainTex ("MainTex", 2D) = "white" {}
 		_ShapeMap ("ShapeMap" , 2D) = "white" {}
 		_Lut ("Lut" , 2D) = "white" {}
@@ -27,7 +27,7 @@ Shader "RoXami/Girl/Hair_G-1" {
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
  
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Color;
+			float4 _BaseColor;
 			float _SpecLength;
 			float _SpecHard;
 			float4 _SpecColor;
@@ -121,7 +121,7 @@ Shader "RoXami/Girl/Hair_G-1" {
                 float2 OffestSamplePos = ScreenPosition + _RimOffest / IN.ClipW * SignDir;
 
 				//Texture
-				float4 ToonColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * _Color * LightColor;
+				float4 ToonColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * _BaseColor * LightColor;
 				float4 Shape = SAMPLE_TEXTURE2D(_ShapeMap, sampler_ShapeMap, IN.uv);
 				float3 Toon = SAMPLE_TEXTURE2D(_Lut, sampler_Lut, float2(0 , NdotL));
 				float OffsetDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture , sampler_CameraDepthTexture , OffestSamplePos);
@@ -181,7 +181,7 @@ Shader "RoXami/Girl/Hair_G-1" {
 
             // -------------------------------------
             // Material Keywords
-            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NormalMap
             #pragma shader_feature_local _PARALLAXMAP
             #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma shader_feature_local_fragment _ALPHATEST_ON

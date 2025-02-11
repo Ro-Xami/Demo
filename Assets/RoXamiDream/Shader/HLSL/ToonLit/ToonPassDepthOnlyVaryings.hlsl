@@ -1,6 +1,6 @@
 		CBUFFER_START(UnityPerMaterial)
 		half _cutOut;
-		half4 _baseMap_ST;
+		half4 _BaseMap_ST;
 		CBUFFER_END
 
 			struct Attributes {
@@ -24,7 +24,7 @@
                 UNITY_TRANSFER_INSTANCE_ID(IN,OUT);
 
 				OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
-				OUT.uv = TRANSFORM_TEX(IN.uv , _baseMap);
+				OUT.uv = TRANSFORM_TEX(IN.uv , _BaseMap);
 
 				return OUT;
 			}

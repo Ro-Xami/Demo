@@ -1,6 +1,6 @@
 Shader "RoXami/Girl/Eye"{
 Properties {
-		_Color ("Color", Color) = (1, 1, 1, 1)
+		_BaseColor ("Color", Color) = (1, 1, 1, 1)
 		[NoScaleOffest]_MainTex ("MainTex", 2D) = "white" {}
 		[NoScaleOffest]_EyeMask ("EyeMask", 2D) = "white" {}
 		[NoScaleOffest]_NormalMap ("NormalMap", 2D) = "Bump" {}
@@ -18,7 +18,7 @@ Properties {
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
  
 			CBUFFER_START(UnityPerMaterial)
-			float4 _Color;
+			float4 _BaseColor;
 			float _ParallaxScale;
 			float _BlendNormal;
 			float _MatCapIntensity;
@@ -90,7 +90,7 @@ Properties {
 				OffestUV = lerp(IN.uv , OffestUV , MaskMap.b);
 
 				//Texture
-				float4 BaseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, OffestUV) * _Color * _MainLightColor;
+				float4 BaseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, OffestUV) * _BaseColor * _MainLightColor;
 				float3 NormalMap = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv));
 				NormalVS = lerp(NormalVS , NormalMap , _BlendNormal);
 				float4 MatCap = SAMPLE_TEXTURE2D(_MatCap, sampler_MatCap, NormalVS.xy * 0.5 + 0.5);
@@ -166,7 +166,7 @@ Properties {
 				OffestUV = lerp(IN.uv , OffestUV , MaskMap.b);
 
 				//Texture
-				float4 BaseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, OffestUV) * _Color * _MainLightColor;
+				float4 BaseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, OffestUV) * _BaseColor * _MainLightColor;
 				float3 NormalMap = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv));
 				NormalVS = lerp(NormalVS , NormalMap , _BlendNormal);
 				float4 MatCap = SAMPLE_TEXTURE2D(_MatCap, sampler_MatCap, NormalVS.xy * 0.5 + 0.5);
@@ -204,7 +204,7 @@ Properties {
 
             // -------------------------------------
             // Material Keywords
-            #pragma shader_feature_local _NORMALMAP
+            #pragma shader_feature_local _NormalMap
             #pragma shader_feature_local _PARALLAXMAP
             #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
             #pragma shader_feature_local_fragment _ALPHATEST_ON

@@ -2,6 +2,7 @@
   "dependencies": {
     "com.jasonma.lwgui": "file:F:/unity study/LWGUI-1.x",
     "com.unity.collab-proxy": "2.5.2",
+    "com.unity.formats.fbx": "4.2.1",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.render-pipelines.universal": "14.0.11",
