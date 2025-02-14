@@ -170,6 +170,7 @@ Material:
     - _group2: 0
     - _group3: 0
     - _group4: 0
+    - _group5: 0
     - _inSpecMax: 0.75
     - _inSpecMin: 0.5
     - _inSpecSlider: 1
@@ -186,6 +187,7 @@ Material:
     - _metallic: 0
     - _minMaxSlider: 1
     - _normalStrength: 0
+    - _outlineSize: 0.1
     - _roughness: 0.898
     - _specMax: 1
     - _specMin: 0.7
@@ -202,6 +204,7 @@ Material:
     - _emissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _inSpecColor: {r: 0.740566, g: 0.9690448, b: 1, a: 1}
     - _lightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _outlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _shadowColor: {r: 0.6509434, g: 0.00618316, b: 0, a: 1}
     - _specColor: {r: 0.7924528, g: 0.6224787, b: 0.50462794, a: 1}
   m_BuildTextureStacks: []

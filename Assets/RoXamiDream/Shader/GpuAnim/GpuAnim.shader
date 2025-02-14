@@ -56,13 +56,11 @@ Shader "RoXami/GpuAnim"
 		[Space(10)][g4,Title(Transparent Options)]
 		[SubToggle(g4)] _ZWrite ("ZWriteMode ", Float) = 1
 		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTestMode", Float) = 4
-		//[Preset(g1, BlendMode_LWGUI_ShaderPropertyPreset)] _blendMode ("BlendMode", float) = 0
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", Float) = 1
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", Float) = 0
 		//GpuAnim------------------------------------------------------------
 		[Main(GpuAnim, _, on, off)] _gpuAnim ("GPU Animation", float) = 0
 		[Preset(GpuAnim, LWGUI_GpuAnimationType)] _gpuAnimType ("GPU Animation Type", float) = 0
-		//[Toggle] _IsBonesOrVertices ("IsBonesOrVertices", Int) = 0
 		[SubToggle(GpuAnim, _ISNORMALTANGENT_ON)] _isNormalTangent ("isNormalTangent", Int) = 1
 		[Tex(GpuAnim)]_gpuAnimationMatrix ("GpuAnimationMatrix" , 2D) = "white"
 		[Sub(GpuAnim)] _animationPlayedData ("AnimationPlayedData:frame,lastFrame,blend,0" , vector) = (0,0,0,0)	

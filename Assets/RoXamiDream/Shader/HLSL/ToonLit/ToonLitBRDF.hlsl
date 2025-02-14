@@ -1,9 +1,15 @@
-#ifndef NPRBasedFragInput_INCLUDED
-#define NPRBasedFragInput_INCLUDED
+#ifndef ToonLitBRDF_INCLUDED
+#define ToonLitBRDF_INCLUDED
 
 #if defined(_ISBRUSH_ON)
 	TEXTURE2D(_brush);
     SAMPLER(sampler_brush);
+#endif
+
+#if defined(_ISRAMPMAP_ON)
+    //TEXTURE2D(_RampMap);
+    //SAMPLER(sampler_RampMap);
+    Texture2D<float4> _RampMap;
 #endif
 
 #define linear_f0 0.08
@@ -62,11 +68,17 @@ half3 GGX_Spec (half HoL , half NoH , half3 F0 ,  half roughness , half brush)
 
 #ifdef _ISBRUSH_ON
 	Spec = Spec * lerp(0.5 , brush , _brushStrength.y) + 0.5;//ToonBrush
-#else
-#endif 
+#endif    
     
-    Spec = LinearStep_Max(_specMin , _specMax, Spec);//Toon
-    return Spec * F0 * _specColor;
+    half3 SpecCol = half3(0,0,0);
+#if defined(_ISRAMPMAP_ON)
+    Spec = LinearStep(_specMin , _specMax, Spec);
+    SpecCol = _RampMap.Load(int3(Spec * 255 , 4 , 0)); 
+#else
+    Spec = LinearStep_Max(_specMin , _specMax, Spec);
+    SpecCol = _specColor * Spec;
+#endif
+    return F0 * SpecCol;
 }
 
 half3 unity_SampleSH(half3 normalWS)
@@ -91,8 +103,16 @@ half3 Fresnel_InLight (half NoV, half roughness, half3 F0 , half brush)
 #endif 
     
     half fresnel = LinearStep(_inSpecMin, _inSpecMax, 1 - NoV);//Toon
+    //fresnel = pow(fresnel * 2 , 2);
+    half3 fresnelCol = half3(0,0,0);
+#if defined(_ISRAMPMAP_ON)
+    fresnelCol = _RampMap.Load(int3(fresnel * 255 , 8 , 0));
+    fresnelCol = F0 + fresnelCol * saturate(1 - roughness - F0);
+#else
     fresnel = pow(fresnel * 2 , 2);
-    return F0 + fresnel * saturate(1 - roughness - F0);
+    fresnelCol = F0 + fresnel * saturate(1 - roughness - F0);
+#endif
+    return fresnelCol;
 }
 
 real3 SpecCube_InLignt(half3 normalWS, half3 viewWS, half roughness)
@@ -120,9 +140,14 @@ half3 DirectionalLight (half HoL , half NoL , half NoV , half NoH , half3 albedo
     //half3 BRDFSpec = (Distribution(NoH, roughness) * Combine_Geometry(NoL, NoV, roughness) * Fresnel_Light(HoL, F0)) / (4 * NoL * NoV);
     half3 BRDFSpec = GGX_Spec(HoL , NoH , F0 , roughness , brush);
     NoL *= shadow;
-    half3 diffuseCol = lerp(_shadowColor , _lightColor , NoL);
+    half3 diffuseCol = half3(0, 0, 0);
+#if defined(_ISRAMPMAP_ON)
+    diffuseCol = _RampMap.Load(int3(NoL * 255 , 0 , 0)); 
+#else
+    diffuseCol = lerp(_shadowColor , _lightColor , NoL);
+#endif
     return (Kd * albedo * diffuseCol + BRDFSpec * NoL) * lightColor;
-    //return diffuseColor;
+    //return BRDFSpec;
 }
 
 half3 InDirectionalLight(half NoV , half3 normalWS, half3 viewWS , half3 albedo , half metallic , half roughness, half occlusion, half3 F0 , half brush)
@@ -136,7 +161,10 @@ half3 InDirectionalLight(half NoV , half3 normalWS, half3 viewWS , half3 albedo 
     half3 SpecCubecolor = SpecCube_InLignt(normalWS, viewWS, roughness);
     half2 LUT = LUT_Approx(roughness, NoV);
     half3 InSpec = SpecCubecolor * (F_IndirectionLight * LUT.r + LUT.g);
+#if defined(_ISRAMPMAP_ON)
+#else
     InSpec *= _inSpecColor;
+#endif
     return (InDiffuse + InSpec) * occlusion;
     //return InSpec;
 }
@@ -185,7 +213,7 @@ half3 PBR_Result(half3 positionWS , half3 viewDir, half2 uv , PBR pbr)
         InDirectionalLight(NoV, normalDir, viewDir, albedo, metallic, roughness, occlusion , F0 , brush.g) +
             emission;
     //return
-    //    InDirectionalLight(NoV, normalDir, viewDir, albedo, metallic, roughness, occlusion , F0 , brush.g);
+    //    DirectionalLight(HoL, NoL, NoV, NoH, albedo, roughness, metallic, F0 , lightColor, shadow , brush.g);
 }
 
 #define PBR_Result(IN , pbr) PBR_Result(IN.positionWS , IN.viewWS , IN.uv , pbr);

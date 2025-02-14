@@ -1,6 +1,3 @@
-#pragma vertex vert
-#pragma fragment frag
-
 CBUFFER_START(UnityPerMaterial)
 		float _outlineSize;
 		float4 _outlineColor;

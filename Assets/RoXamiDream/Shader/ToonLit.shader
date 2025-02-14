@@ -13,7 +13,7 @@ Shader "RoXami/ToonLit"
 		[Sub(g1)]_normalStrength ("NormalScale" , float) = 0
 		[Space(10)][g1,Title(PBR)]
 		[SubToggle(g1, _ISARMMAP_ON)] _isArmMap("isArmMap", Int) = 0
-		[Tex(g1)]_MaskMap ("ArmMap", 2D) = "white" {}
+		[Tex(g1)]_MaskMap ("RMAMap", 2D) = "white" {}
 		[Sub(g1)]_ao ("AO" , Range(0 , 1)) = 1
 		[Sub(g1)]_roughness ("Roughness" , Range(0 , 1)) = 0.5
 		[Sub(g1)]_metallic ("Metallic" , Range(0 , 1)) = 0
@@ -23,6 +23,9 @@ Shader "RoXami/ToonLit"
 		[Sub(g1)][HDR] _emissionColor ("EmissiveColor" , Color) = (0 , 0 , 0 , 0)
 		//Toon
 		[Main(g2, _, on, off)]_group2 ("Toon Rendering", float) = 0
+		[g2,Title(Ramp)]
+		[SubToggle(g2, _ISRAMPMAP_ON)] _isRampMap("isRampMap", Int) = 0
+		[Sub(g2)] _RampMap ("RampMap", 2D) = "white" {}
 		[g2,Title(Diffuse)]
 		[Sub(g2)]_lightColor ("LightColor" , Color) = (1 , 1 , 1 , 1)
 		[Sub(g2)]_shadowColor ("ShadowColor" , Color) = (0.1 , 0.1 , 0.1 , 1)
@@ -44,19 +47,23 @@ Shader "RoXami/ToonLit"
 		[Sub(g3)][NoScaleOffset]_brush ("BrushMap" , 2D) = "white" {}
 		[Sub(g3)]_brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
 		[Sub(g3)]_brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
+		//Outline
+		[Main(g4, _, on, off)]_group4 ("Outline", float) = 0
+		[Preset(g4, LWGUI_EnableOutlinePass)] _outlinePass ("Outline Pass", float) = 0
+		[Sub(g4)] _outlineSize ("OutlineSize" , Range(0,1)) = 0.1
+		[Sub(g4)] _outlineColor ("OutlineColor" , color) = (0,0,0,1)
 		//SurfaceOptions
-		[Main(g4, _, on, off)]_group4 ("Surface Options", float) = 0
-		[g4,Title(Render Type)]
-		[Preset(g4, LWGUI_Preset_BlendMode)] _surfaceOptions ("Surface Options", float) = 0
-		[SubToggle(g4, _ISALPHACLIP_ON)] _isAlphaClip("isAlphaClip", Int) = 0
-		[Sub(g4)]_cutOut("CutOut" , Range(0,1)) = 0.5
-		[Space(10)][g4,Title(Surface)]
-		[SubEnum(g4, UnityEngine.Rendering.CullMode)] _CullMode ("CullMode", Float) = 2
-		[SubToggle(g4, _ISRECEIVETOONSHADOW_ON)] _isReceiveToonShadow("isReceiveToonShadow", Int) = 1
-		[Space(10)][g4,Title(Transparent Options)]
-		[SubToggle(g4)] _ZWrite ("ZWriteMode ", Float) = 1
-		[SubEnum(g4, UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTestMode", Float) = 4
-		//[Preset(g1, BlendMode_LWGUI_ShaderPropertyPreset)] _blendMode ("BlendMode", float) = 0
+		[Main(g5, _, on, off)]_group5 ("Surface Options", float) = 0
+		[g5,Title(Render Type)]
+		[Preset(g5, LWGUI_Preset_BlendMode)] _surfaceOptions ("Surface Options", float) = 0
+		[SubToggle(g5, _ISALPHACLIP_ON)] _isAlphaClip("isAlphaClip", Int) = 0
+		[Sub(g5)]_cutOut("CutOut" , Range(0,1)) = 0.5
+		[Space(10)][g5,Title(Surface)]
+		[SubEnum(g5, UnityEngine.Rendering.CullMode)] _CullMode ("CullMode", Float) = 2
+		[SubToggle(g5, _ISRECEIVETOONSHADOW_ON)] _isReceiveToonShadow("isReceiveToonShadow", Int) = 1
+		[Space(10)][g5,Title(Transparent Options)]
+		[SubToggle(g5)] _ZWrite ("ZWriteMode ", Float) = 1
+		[SubEnum(g5, UnityEngine.Rendering.CompareFunction)] _ZTest ("ZTestMode", Float) = 4
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend ("SrcBlend", Float) = 1
 		[HideInInspector][Enum(UnityEngine.Rendering.BlendMode)]_DstBlend ("DstBlend", Float) = 0
     }
@@ -72,6 +79,7 @@ Shader "RoXami/ToonLit"
 			#pragma shader_feature_local _ISNORMALMAP_ON
 			#pragma shader_feature_local _ISARMMAP_ON
 			#pragma shader_feature_local _ISEMISSIONMAP_ON
+			#pragma shader_feature_local _ISRAMPMAP_ON
 			#pragma shader_feature_local _ISBRUSH_ON
 			#pragma shader_feature_local _ISALPHACLIP_ON
 			#pragma shader_feature_local _ISRECEIVETOONSHADOW_ON
@@ -106,11 +114,24 @@ Shader "RoXami/ToonLit"
 			#pragma multi_compile_instancing
 
 			#include "HLSL/ToonLit/ToonLitVaryings.hlsl"
-
 			#include_with_pragmas "HLSL/ToonLit/ToonLitFragment.hlsl"			
 			
 			ENDHLSL
 		}
+
+		Pass 
+			{
+			Name "Outline"
+			Tags{"LightMode" = "SRPDefaultUnlit"}
+			Cull Front
+ 
+			HLSLPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#include "HLSL/NPR/NPROutline.hlsl"
+			
+			ENDHLSL
+			}
 
 		Pass
         {
