@@ -44,9 +44,9 @@ Shader "RoXami/ToonLit"
 		[HideInInspector]_inSpecMax ("InSpecMax" , Range(0 , 1)) = 0.75
 		//Brush
 		[Main(g3, _ISBRUSH_ON, off)]_group3 ("Toon Brush", float) = 0
-		[Sub(g3)][NoScaleOffset]_brush ("BrushMap" , 2D) = "white" {}
-		[Sub(g3)]_brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
-		[Sub(g3)]_brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
+		[Sub(g3)] _BrushMap ("BrushMap" , 2D) = "white" {}
+		[Sub(g3)] _brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
+		[Sub(g3)] _brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
 		//Outline
 		[Main(g4, _, on, off)]_group4 ("Outline", float) = 0
 		[Preset(g4, LWGUI_EnableOutlinePass)] _outlinePass ("Outline Pass", float) = 0
@@ -87,12 +87,13 @@ Shader "RoXami/ToonLit"
 		ENDHLSL
 
 		Pass {
-			Tags {"LightMode" = "UniversalForward"}
+		Name "ToonBased"
+		Tags {"LightMode" = "UniversalForward"}
 
-			Blend [_SrcBlend] [_DstBlend]
-			ZWrite [_ZWrite]
-			ZTest [_ZTest]
-			Cull [_CullMode]
+		Blend [_SrcBlend] [_DstBlend]
+		ZWrite [_ZWrite]
+		ZTest [_ZTest]
+		Cull [_CullMode]
 
 		HLSLPROGRAM
 

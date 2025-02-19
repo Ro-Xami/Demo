@@ -3,6 +3,7 @@ struct Attributes {
 				float3 normalOS : NORMAL;
 				float4 tangentOS : TANGENT;
 				float2 uv : TEXCOORD0;
+				float2 uv1 : TEXCOORD1;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -10,13 +11,14 @@ struct Attributes {
 			struct Varyings {
 				float4 positionCS : SV_POSITION;
 				float2 uv : TEXCOORD0;
-				float3 positionWS : TEXCOORD1;
-				float3 normalWS : TEXCOORD2;
-				float3 tangentWS : TEXCOORD3;
-				float3 bitangentWS : TEXCOORD4;
-				float3 viewWS : TEXCOORD5;
-				float fogCoord : TEXCOORD6;
-				float2 normalizedScreenSpaceUV : TEXCOORD7;
+				float2 uv1 : TEXCOORD1;
+				float3 positionWS : TEXCOORD2;
+				float3 normalWS : TEXCOORD3;
+				float3 tangentWS : TEXCOORD4;
+				float3 bitangentWS : TEXCOORD5;
+				float3 viewWS : TEXCOORD6;
+				float fogCoord : TEXCOORD7;
+				float2 normalizedScreenSpaceUV : TEXCOORD8;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -40,6 +42,7 @@ struct Attributes {
 				OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
 				OUT.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(OUT.positionCS);
 				OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+				OUT.uv1 = IN.uv1;
 
 				return OUT;
 			}

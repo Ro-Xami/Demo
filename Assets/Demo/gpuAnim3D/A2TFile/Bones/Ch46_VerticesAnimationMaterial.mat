@@ -13,6 +13,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ISBONESORVERTICES_ON
+  - _ISBRUSH_ON
   - _ISNORMALMAP_ON
   - _ISNORMALTANGENT_ON
   m_InvalidKeywords:
@@ -31,8 +32,16 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - :
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
         m_Texture: {fileID: 2800000, guid: 2d37f24997c6bdd43b05f9b5deecd67d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BrushMap:
+        m_Texture: {fileID: 2800000, guid: 31b04f4bebf025b439b8337d4638c321, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -49,10 +58,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _baseMap:
         m_Texture: {fileID: 2800000, guid: 2d37f24997c6bdd43b05f9b5deecd67d, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _brush:
-        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _emissionMap:
@@ -89,7 +94,7 @@ Material:
     - _gpuAnimType: 0
     - _group1: 1
     - _group2: 0
-    - _group3: 0
+    - _group3: 1
     - _group4: 0
     - _inSpecMax: 1
     - _inSpecMin: 0.31813908
@@ -108,10 +113,12 @@ Material:
     - _specSlider: 1
     - _surfaceOptions: 0
     m_Colors:
+    - Strength: {r: 0.1, g: 0.1, b: 0.1, a: 0}
+    - Transform: {r: 10, g: 10, b: 10, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _animationPlayedData: {r: 0, g: 0, b: 0, a: 0}
-    - _brushStrength: {r: 0.1, g: 0.1, b: 0.1, a: 0}
+    - _brushStrength: {r: -1.44, g: 0.1, b: 0.1, a: 0}
     - _brushTransform: {r: 10, g: 10, b: 10, a: 0}
     - _emissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _inSpecColor: {r: 1, g: 1, b: 1, a: 1}

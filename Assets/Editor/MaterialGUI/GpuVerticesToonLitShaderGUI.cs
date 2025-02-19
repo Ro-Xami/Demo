@@ -209,9 +209,9 @@ public class GpuVerticesToonLitShaderGUI : ShaderGUI
         isBrush = EditorGUILayout.BeginFoldoutHeaderGroup(isBrush, "Toon Brush");
         if (isBrush)
         {
-            MaterialProperty brushMap = FindProperty("_brush", properties, true);
-            MaterialProperty brushTransform = FindProperty("_brushTransform", properties, true);
-            MaterialProperty brushStrength = FindProperty("_brushStrength", properties, true);
+            MaterialProperty brushMap = FindProperty("", properties, true);
+            MaterialProperty brushTransform = FindProperty("Transform", properties, true);
+            MaterialProperty brushStrength = FindProperty("Strength", properties, true);
             if (brushMap != null && brushMap.textureValue != null)
             {
                 material.EnableKeyword("_ISBRUSH_ON");

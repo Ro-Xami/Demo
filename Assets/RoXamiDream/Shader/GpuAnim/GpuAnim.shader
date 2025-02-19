@@ -41,9 +41,9 @@ Shader "RoXami/GpuAnim"
 		[HideInInspector]_inSpecMax ("InSpecMax" , Range(0 , 1)) = 0.75
 		//Brush
 		[Main(g3, _ISBRUSH_ON, off)]_group3 ("Toon Brush", float) = 0
-		[Sub(g3)][NoScaleOffset]_brush ("BrushMap" , 2D) = "white" {}
-		[Sub(g3)]_brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
-		[Sub(g3)]_brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
+		[Sub(g3)] _BrushMap ("BrushMap" , 2D) = "white" {}
+		[Sub(g3)] _brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
+		[Sub(g3)] _brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
 		//SurfaceOptions
 		[Main(g4, _, on, off)]_group4 ("Surface Options", float) = 0
 		[g4,Title(Render Type)]
@@ -134,12 +134,14 @@ Shader "RoXami/GpuAnim"
 			struct Varyings {
 				float4 positionCS : SV_POSITION;
 				float2 uv : TEXCOORD0;
-				float3 positionWS : TEXCOORD1;
-				float3 normalWS : TEXCOORD2;
-				float3 tangentWS : TEXCOORD3;
-				float3 bitangentWS : TEXCOORD4;
-				float3 viewWS : TEXCOORD5;
-				float fogCoord : TEXCOORD6;
+				float2 uv1 : TEXCOORD1;
+				float3 positionWS : TEXCOORD2;
+				float3 normalWS : TEXCOORD3;
+				float3 tangentWS : TEXCOORD4;
+				float3 bitangentWS : TEXCOORD5;
+				float3 viewWS : TEXCOORD6;
+				float fogCoord : TEXCOORD7;
+				float2 normalizedScreenSpaceUV : TEXCOORD8;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -185,7 +187,9 @@ Shader "RoXami/GpuAnim"
 
 				OUT.viewWS = SafeNormalize(GetCameraPositionWS() - OUT.positionWS);
 				OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
+				OUT.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(OUT.positionCS);
 				OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+				OUT.uv1 = OUT.uv;
 
 				return OUT;
 			}

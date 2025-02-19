@@ -2,8 +2,8 @@
 #define ToonLitFragInput_INCLUDED
 
 #if defined(_ISBRUSH_ON)
-	TEXTURE2D(_brush);
-    SAMPLER(sampler_brush);
+	TEXTURE2D();
+    SAMPLER(sampler);
 #endif
 
 #define linear_f0 0.08
@@ -61,7 +61,7 @@ half3 GGX_Spec (half HoL , half NoH , half3 F0 ,  half roughness , half brush)
     half Spec = roughness2 / ((d * d) * max(0.1 , HoL2) * nor);
 
 #ifdef _ISBRUSH_ON
-	Spec = Spec * lerp(0.5 , brush , _brushStrength.y) + 0.5;//ToonBrush
+	Spec = Spec * lerp(0.5 , brush , Strength.y) + 0.5;//ToonBrush
 #else
 #endif 
     
@@ -86,7 +86,7 @@ half3 Fresnel_InLight (half NoV, half roughness, half3 F0 , half brush)
 {
     //half fresnel = exp2((-5.55473 * NdotV - 6.98316) * NdotV);
 #ifdef _ISBRUSH_ON
-	NoV = NoV * lerp(0.5 , brush , _brushStrength.z) + 0.5;//ToonBrush
+	NoV = NoV * lerp(0.5 , brush , Strength.z) + 0.5;//ToonBrush
 #else
 #endif 
     
@@ -171,8 +171,8 @@ half3 PBR_Result(half3 positionWS , half3 viewDir, half2 uv , PBR pbr)
     half HoL = max(saturate(dot(halfDir, lightDir)), 0.0001);
 
 #ifdef _ISBRUSH_ON
-	brush = SAMPLE_TEXTURE2D(_brush, sampler_brush, uv * _brushTransform.xy + _brushTransform.zw).rgb;
-    NoL = NoL * lerp(0.5 , brush.r , _brushStrength.x) + 0.5;//ToonBrush
+	brush = SAMPLE_TEXTURE2D(, sampler, uv * Transform.xy + Transform.zw).rgb;
+    NoL = NoL * lerp(0.5 , brush.r , Strength.x) + 0.5;//ToonBrush
 #else
 #endif   
 

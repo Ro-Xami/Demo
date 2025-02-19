@@ -1,20 +1,10 @@
-#include_with_pragmas "ToonLitBRDF.hlsl"
+#include_with_pragmas "../ToonLit/ToonLitBRDF.hlsl"
 
 	TEXTURE2D(_BaseMap);
 	SAMPLER(sampler_BaseMap);
 #if defined(_ISNORMALMAP_ON)
 	TEXTURE2D(_NormalMap);
 	SAMPLER(sampler_NormalMap);
-#endif
-
-#if defined(_ISARMMAP_ON)
-	TEXTURE2D(_MaskMap);
-	SAMPLER(sampler_MaskMap);
-#endif
-
-#if defined(_ISEMISSIONMAP_ON)
-	TEXTURE2D(_EmissionMap);
-	SAMPLER(sampler_EmissionMap);
 #endif
 
 half4 frag(Varyings IN) : SV_Target {
@@ -33,38 +23,18 @@ half4 frag(Varyings IN) : SV_Target {
                 normal = NormalizeNormalPerPixel(mul(TBN, norTS));
 #else
 #endif
-				half3 mask = half3(1,1,1);
-#ifdef _ISARMMAP_ON
-				mask = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, IN.uv).rgb;
-#else
-#endif
-				half3 emissive = half3(1,1,1);
-#ifdef _ISEMISSIONMAP_ON
-				emissive = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, IN.uv).rgb;
-#else
-#endif
-				//pbrData
-				half roughness = mask.r * _roughness;
-				half metallic = mask.g * _metallic;
-				half ao = mask.b * _ao;
-				emissive *= _emissionColor; 
-				
 				//pbrInput
 				PBR pbr;
 				pbr.albedo = albedo.rgb;
 				pbr.normal = normal;
-				pbr.ao = ao;
-				pbr.roughness = roughness;
-				pbr.metallic = metallic;
-				pbr.emissive = emissive;
+				pbr.ao = 1;
+				pbr.roughness = _roughness;
+				pbr.metallic = 0;
+				pbr.emissive = 0;
 
 				half3 col = PBR_Result(IN , pbr);
 
 				col = MixFog(col,IN.fogCoord);
 
-#ifdef _ISALPHACLIP_ON
-				clip(albedo.a - _cutOut);
-#else
-#endif
-				return half4( col , albedo.a);
+				return half4( col.rgb , 1);
 			}

@@ -6,7 +6,7 @@ CBUFFER_END
 struct Attributes {
 				float4 positionOS : POSITION;
 				float2 uv : TEXCOORD0;
-				float3 normal : NORMAL;
+				float3 normalOS : NORMAL;
 				float4 color : COLOR;
 			};
  
@@ -20,6 +20,7 @@ struct Attributes {
  
 			Varyings vert(Attributes IN) {
 				Varyings OUT;
+
 				float3 outlineDir = normalize(IN.color.xyz * 2 - 1);
 				IN.positionOS.xyz += outlineDir * _outlineSize * IN.color.z * 0.1;
 				VertexPositionInputs positionInputs = GetVertexPositionInputs(IN.positionOS.xyz);
