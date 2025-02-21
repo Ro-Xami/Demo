@@ -141,7 +141,7 @@ Shader "RoXami/GpuAnim"
 				float3 bitangentWS : TEXCOORD5;
 				float3 viewWS : TEXCOORD6;
 				float fogCoord : TEXCOORD7;
-				float2 normalizedScreenSpaceUV : TEXCOORD8;
+				float2 screenSpaceUV : TEXCOORD8;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -187,7 +187,7 @@ Shader "RoXami/GpuAnim"
 
 				OUT.viewWS = SafeNormalize(GetCameraPositionWS() - OUT.positionWS);
 				OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
-				OUT.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(OUT.positionCS);
+				OUT.screenSpaceUV = GetNormalizedScreenSpaceUV(OUT.positionCS);
 				OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
 				OUT.uv1 = OUT.uv;
 

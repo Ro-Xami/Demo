@@ -13,7 +13,6 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _ISBONESORVERTICES_ON
-  - _ISBRUSH_ON
   - _ISNORMALMAP_ON
   - _ISNORMALTANGENT_ON
   m_InvalidKeywords:
@@ -94,7 +93,7 @@ Material:
     - _gpuAnimType: 0
     - _group1: 1
     - _group2: 0
-    - _group3: 1
+    - _group3: 0
     - _group4: 0
     - _inSpecMax: 1
     - _inSpecMin: 0.31813908

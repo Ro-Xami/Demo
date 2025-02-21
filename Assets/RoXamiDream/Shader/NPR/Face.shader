@@ -31,9 +31,10 @@ Shader "RoXami/NPR/SDF_Face" {
 		[HideInInspector]_inSpecMin ("InSpecMin" , Range(0 , 1)) = 0.5
 		[HideInInspector]_inSpecMax ("InSpecMax" , Range(0 , 1)) = 0.75
 		//DepthRimLight
-		[Main(g6, _ISDEPTHRIM_ON, on, off)]_group6 ("Depth RimLight", float) = 0
-		[Sub(g6)] _rimOffest ("_RimWidth", Range(0, 100)) = 0.012
-		[Sub(g6)] _threshold ("_Threshold", Range(0, 100)) = 0.09
+		[Main(g6, _ISDEPTHRIM_ON, off)]_group6 ("Depth RimLight", float) = 0
+		[Sub(g6)] _rimColor ("RimColor" , Color) = (1,1,1,1) 
+		[Sub(g6)] _rimOffest ("_RimWidth", Range(0, 0.1)) = 0.0072
+		[Sub(g6)] _threshold ("_Threshold", Range(0, 0.1)) = 0.09
 		//Outline
 		[Main(g4, _, on, off)]_group4 ("Outline", float) = 0
 		[Preset(g4, LWGUI_EnableOutlinePass)] _outlinePass ("Outline Pass", float) = 0
@@ -46,8 +47,7 @@ Shader "RoXami/NPR/SDF_Face" {
 		Tags { "RenderType"="Opaque" "Queue" = "Geometry" "RenderPipeline"="UniversalPipeline" "IgnoreProjector" = "True"}
 
 		HLSLINCLUDE
-			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-			#pragma shader_feature_local _ISDEPTHRIM_ON
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"	
 		ENDHLSL
 
 		Pass {

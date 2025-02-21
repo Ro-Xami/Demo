@@ -12,6 +12,7 @@
 
 #pragma shader_feature_local _ISRAMPMAP_ON
 #pragma shader_feature_local _ISLIGHTMAP_ON
+#pragma shader_feature_local _ISDEPTHRIM_ON
 
 
 #if defined(_ISBRUSH_ON)
@@ -166,15 +167,15 @@ half DepthRimLight(half2 screenSpaceUV , half3 normal , half positionCS_W)
 {
     half3 normalVS = TransformWorldToViewDir(normal, true);
     half2 signDir = normalVS.xy;
-    half2 OffestSamplePos = screenSpaceUV + _rimOffest / positionCS_W * signDir;
-    half OffsetDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture , sampler_CameraDepthTexture , OffestSamplePos).r;
-    half Depth = SAMPLE_TEXTURE2D(_CameraDepthTexture , sampler_CameraDepthTexture , screenSpaceUV).r;
+    half2 offestSamplePos = screenSpaceUV + _rimOffest / positionCS_W * signDir;
+    half offsetDepth = SAMPLE_TEXTURE2D(_CameraDepthTexture , sampler_CameraDepthTexture , offestSamplePos).r;
+    half depth = SAMPLE_TEXTURE2D(_CameraDepthTexture , sampler_CameraDepthTexture , screenSpaceUV).r;
     //Rim
-    half Linear01EyeOffectDepth = Linear01Depth(OffsetDepth , _ZBufferParams);
-    half Linear01EyeDepth = Linear01Depth(Depth , _ZBufferParams);
-    half DepthDiffer = Linear01EyeOffectDepth - Linear01EyeDepth;
-    half Rim = step(_threshold * 0.001, DepthDiffer);
-    return Rim;
+    half linear01EyeOffectDepth = Linear01Depth(offsetDepth , _ZBufferParams);
+    half linear01EyeDepth = Linear01Depth(depth , _ZBufferParams);
+    half depthDiffer = linear01EyeOffectDepth - linear01EyeDepth;
+    half rim = step(_threshold * 0.001, depthDiffer);
+    return rim;
 }
 #endif
 
@@ -278,7 +279,7 @@ half3 PBR_Result(half3 positionWS , half3 viewDir, half2 screenSpaceUV , half4 p
 
     half3 depthRim = half3(0,0,0);
 #ifdef _ISDEPTHRIM_ON
-    depthRim = DepthRimLight(screenSpaceUV , normal , positionCS.w);
+    depthRim = DepthRimLight(screenSpaceUV , normalDir , positionCS.w) * _rimColor.rgb * NoL;
 #endif
     
     return
@@ -286,8 +287,8 @@ half3 PBR_Result(half3 positionWS , half3 viewDir, half2 screenSpaceUV , half4 p
     + InDirectionalLight(NoV, normalDir, viewDir, albedo, metallic, roughness, occlusion , F0)
     + depthRim
     + emission;
-    //return depthRim;
+    //return float4(depthRim.xxx,1);
 }
 
-#define PBR_Result(IN , pbr) PBR_Result(IN.positionWS , IN.viewWS , IN.normalizedScreenSpaceUV , IN.positionCS , IN.uv , IN.uv1 , pbr);
+#define PBR_Result(IN , pbr) PBR_Result(IN.positionWS , IN.viewWS , IN.screenSpaceUV , IN.positionCS , IN.uv , IN.uv1 , pbr);
 #endif

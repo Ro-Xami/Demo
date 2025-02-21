@@ -47,6 +47,11 @@ Shader "RoXami/ToonLit"
 		[Sub(g3)] _BrushMap ("BrushMap" , 2D) = "white" {}
 		[Sub(g3)] _brushTransform ("BrushTransform" , vector) = (10 , 10 , 10 , 0)
 		[Sub(g3)] _brushStrength ("BrushStrength" , vector) = (0.1 , 0.1 , 0.1 , 0)
+		//DepthRimLight
+		[Main(g6, _ISDEPTHRIM_ON, off)]_group6 ("Depth RimLight", float) = 0
+		[Sub(g6)] _rimColor ("RimColor" , Color) = (1,1,1,1) 
+		[Sub(g6)] _rimOffest ("_RimWidth", Range(0, 0.1)) = 0.0072
+		[Sub(g6)] _threshold ("_Threshold", Range(0, 0.1)) = 0.09
 		//Outline
 		[Main(g4, _, on, off)]_group4 ("Outline", float) = 0
 		[Preset(g4, LWGUI_EnableOutlinePass)] _outlinePass ("Outline Pass", float) = 0

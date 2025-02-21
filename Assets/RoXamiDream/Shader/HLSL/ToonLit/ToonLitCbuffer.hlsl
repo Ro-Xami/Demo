@@ -26,6 +26,7 @@ half _cutOut;
 #endif
 
 #ifdef _ISDEPTHRIM_ON
+half4 _rimColor;
 half _rimOffest;
 half _threshold;
 #endif

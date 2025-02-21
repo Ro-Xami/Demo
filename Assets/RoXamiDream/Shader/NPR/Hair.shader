@@ -34,6 +34,11 @@ Shader "RoXami/NPR/Hair" {
 		[MinMaxSlider(g2,_inSpecMin, _inSpecMax)] _inSpecSlider ("inSpec Slider", Range(0.0, 1.0)) = 1.0
 		[HideInInspector]_inSpecMin ("InSpecMin" , Range(0 , 1)) = 0.5
 		[HideInInspector]_inSpecMax ("InSpecMax" , Range(0 , 1)) = 0.75
+		//DepthRimLight
+		[Main(g6, _ISDEPTHRIM_ON, off)]_group6 ("Depth RimLight", float) = 0
+		[Sub(g6)] _rimColor ("RimColor" , Color) = (1,1,1,1) 
+		[Sub(g6)] _rimOffest ("_RimWidth", Range(0, 0.1)) = 0.0072
+		[Sub(g6)] _threshold ("_Threshold", Range(0, 0.1)) = 0.09
 		//Outline
 		[Main(g4, _, on, off)]_group4 ("Outline", float) = 0
 		[Preset(g4, LWGUI_EnableOutlinePass)] _outlinePass ("Outline Pass", float) = 0
