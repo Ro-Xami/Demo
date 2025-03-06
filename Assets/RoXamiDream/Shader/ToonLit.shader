@@ -81,14 +81,6 @@ Shader "RoXami/ToonLit"
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-			#pragma shader_feature_local _ISNORMALMAP_ON
-			#pragma shader_feature_local _ISARMMAP_ON
-			#pragma shader_feature_local _ISEMISSIONMAP_ON
-			#pragma shader_feature_local _ISRAMPMAP_ON
-			#pragma shader_feature_local _ISBRUSH_ON
-			#pragma shader_feature_local _ISALPHACLIP_ON
-			#pragma shader_feature_local _ISRECEIVETOONSHADOW_ON
-
 		ENDHLSL
 
 		Pass {

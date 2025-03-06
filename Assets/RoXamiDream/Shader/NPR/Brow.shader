@@ -72,27 +72,27 @@ Properties {
 			ENDHLSL
 		}
 
-		//Pass 
-		//	{
-		//	Name "Outline"
-		//	Tags{"LightMode" = "SRPDefaultUnlit"}
-		//	Cull Front
+		Pass 
+			{
+			Name "Outline"
+			Tags{"LightMode" = "SRPDefaultUnlit"}
+			Cull Front
 
-  //          Stencil
-  //          {
-  //              Ref 2
-  //              Comp GEqual
-  //              Pass Replace
-  //              Fail Keep
-  //          }
+            Stencil
+            {
+                Ref 2
+                Comp GEqual
+                Pass Replace
+                Fail Keep
+            }
  
-		//	HLSLPROGRAM
-		//	#pragma vertex vert
-		//	#pragma fragment frag
-		//	#include "../HLSL/NPR/NPROutline.hlsl"
+			HLSLPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#include "../HLSL/NPR/NPROutline.hlsl"
 			
-		//	ENDHLSL
-		//	}
+			ENDHLSL
+			}
 
 	}
 }
