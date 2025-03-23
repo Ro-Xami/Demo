@@ -227,7 +227,7 @@ Shader "RoXami/Effect/RoXamiEffect"
                 #if defined(_DISTROTION_ON)
                     half2 distortionUV = TRANSFORM_TEX(IN.uv0, _distortionMap);
                     distortionUV += _Time.y * half2(_distortionSpeedU , _distortionSpeedV);
-                    half distortion = SAMPLE_TEXTURE2D(_distortionMap, sampler_distortionMap, distortionUV);
+                    half distortion = SAMPLE_TEXTURE2D(_distortionMap, sampler_distortionMap, distortionUV).r;
                     mainUV += (distortion - 0.5) * 2 * _distortionStrength;
                 #endif
 
@@ -268,7 +268,7 @@ Shader "RoXami/Effect/RoXamiEffect"
                     #if defined(_DISSOLVE_RIM_ON)
                         half rimDistance = (_dissolveClip + 1) * 0.5;
                         half dissolveRim = 1 - distance(rimDistance , dissolveMap);
-                        finalRGBA.rgb += smoothstep(0.65 , 0.8 , dissolveRim) * _dissolveColor;
+                        finalRGBA.rgb += smoothstep(0.65 , 0.8 , dissolveRim) * _dissolveColor.rgb;
                     #endif
                 #endif
 
