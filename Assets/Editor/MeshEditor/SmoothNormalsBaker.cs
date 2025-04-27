@@ -70,7 +70,12 @@ public class SmoothNormalsBaker : EditorWindow
         {
             Mesh mesh = GameObject.Instantiate(meshes[i]);
 
-            Vector3[] vertices = mesh.vertices;
+            Vector3[] vertices = new Vector3[mesh.vertices.Length];
+            for (int j = 0; j < mesh.vertices.Length; j++)
+            {
+                vertices[j] = mesh.vertices[j] * 10000f;
+            }
+
             int[] triangles = mesh.triangles;
             Color[] colors = new Color[mesh.vertices.Length];
             Dictionary<Vector3, List<Vector3>> vertexToNormals = new Dictionary<Vector3, List<Vector3>>();

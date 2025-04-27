@@ -10,9 +10,17 @@
 #pragma multi_compile _ _SHADOWS_SOFT
 #pragma multi_compile_fog
 
+#pragma shader_feature_local _ISNORMALMAP_ON
+#pragma shader_feature_local _ISARMMAP_ON
+#pragma shader_feature_local _ISEMISSIONMAP_ON
+#pragma shader_feature_local _ISALPHACLIP_ON
+#pragma shader_feature_local _ISRECEIVETOONSHADOW_ON
+
+#pragma shader_feature_local _ISBRUSH_ON
 #pragma shader_feature_local _ISRAMPMAP_ON
 #pragma shader_feature_local _ISLIGHTMAP_ON
 #pragma shader_feature_local _ISDEPTHRIM_ON
+#pragma shader_feature_local _ISSPECMAP_ON
 
 
 #if defined(_ISBRUSH_ON)

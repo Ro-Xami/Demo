@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RoXami_Effect_RoXamiEffect
+  m_Shader: {fileID: 4800000, guid: 13e47e647b14b7c44bf86bfbe91710ae, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _DISSOLVEORPOWER_ON
+  - _MAINFUNCTION_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DissolveMaskTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DissolveTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightFlowMaskTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightFlowTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 49ff4fa67c621ac4495ccbc6ca69d510, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskTextures:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Niuqu_Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _VertexT:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _VertexTMaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _dissolveMap:
+        m_Texture: {fileID: 2800000, guid: 31b04f4bebf025b439b8337d4638c321, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _dissolveMask:
+        m_Texture: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _distortionMap:
+        m_Texture: {fileID: 2800000, guid: 31b04f4bebf025b439b8337d4638c321, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _lightFlowMap:
+        m_Texture: {fileID: 2800000, guid: 31b04f4bebf025b439b8337d4638c321, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _lightFlowMask:
+        m_Texture: {fileID: 2800000, guid: 94382e8ca6523ce459135b2e9a5e8485, type: 3}
+        m_Scale: {x: 100, y: 100}
+        m_Offset: {x: 0, y: 0}
+    - _maskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _vertexOffsetMap:
+        m_Texture: {fileID: 2800000, guid: 31b04f4bebf025b439b8337d4638c321, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _vertexOffsetMask:
+        m_Texture: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BlendMode: 0
+    - _Cullmode: 2
+    - _Dissolve: 0
+    - _DissolveDirect: 0
+    - _DissolveMaskRange: 0
+    - _DissolveMaskToggle: 0
+    - _DissolveOrColor: 0
+    - _DissolveOrPower: 1
+    - _DissolvePower: 1
+    - _Dissolve_U_speed: 0
+    - _Dissolve_V_speed: 0
+    - _DstBlend: 10
+    - _FresnelOpen: 0
+    - _FresnelPower: 1
+    - _FresnelScale: 0
+    - _InvFade: 1
+    - _IsParticleSystemToggle: 0
+    - _LightFlow: 0
+    - _LightFlowScale: 1
+    - _LightFlowUSpeed: 0.1
+    - _LightFlowVSpeed: 0.1
+    - _MainFunction: 1
+    - _MainNiuQu: 0
+    - _MaskTexToggle: 0
+    - _MaskU_Speed: 0
+    - _MaskV_Speed: 0
+    - _Mode: 0
+    - _NIUQU: 0
+    - _N_U_Speed: 0
+    - _N_V_Speed: 0
+    - _NiuQUDiss: 0
+    - _Rotate: 0
+    - _RotateTog: 0
+    - _Rotator: 0
+    - _SOFTPARTICLES: 0
+    - _Smoot: 0
+    - _SrcBlend: 5
+    - _USpeed: 0
+    - _UseCustomDataMove: 0
+    - _UseForAlphaToggle: 0
+    - _VPan_U: 0
+    - _VPan_V: 0
+    - _VSpeed: 0
+    - _VerTexMask: 0
+    - _VerTexOffest: 0
+    - _Zwrite: 0
+    - _channal: 0
+    - _customDataMove: 0
+    - _dissolve: 0
+    - _dissolveClip: 0.02
+    - _dissolveMaskClip: 1
+    - _dissolvePower: 0.71
+    - _dissolveSmooth: 0.765
+    - _dissolveSpeedU: 0
+    - _dissolveSpeedV: 0
+    - _dissolve_CunstomData: 0
+    - _dissolve_Mask: 0
+    - _dissolve_Rim: 0
+    - _distortion: 0
+    - _distortionSpeedU: 0.7
+    - _distortionSpeedV: 1.39
+    - _distortionStrength: -0.49
+    - _fresnel: 0
+    - _fresnelPower: 0.1
+    - _fresnelScale: 0
+    - _lightFlow: 0
+    - _lightFlowMask: 0
+    - _lightFlowMaskClip: 0
+    - _lightFlowSpeedU: 0.25
+    - _lightFlowSpeedV: 0.58
+    - _lightFlow_Mask: 0
+    - _mask: 0
+    - _maskClip: 0
+    - _maskSpeedU: 0
+    - _maskSpeedV: 0
+    - _rotator: 17.82
+    - _vertetxOffest: 0
+    - _vertetxOffest_Mask: 0
+    - _vertexOffsetSpeedU: 0
+    - _vertexOffsetSpeedV: 0
+    - _vertexOffsetStrength: 0.56
+    - _vertexoffsetMaskClip: 1
+    m_Colors:
+    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _DissolveColor: {r: 1, g: 1, b: 1, a: 1}
+    - _DissolveDirection: {r: 0, g: 0, b: 0, a: 0}
+    - _DissolveRootNode: {r: 0, g: 0, b: 0, a: 0}
+    - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LightFlowColor: {r: 1, g: 1, b: 1, a: 1}
+    - _VertexPower: {r: 0, g: 0, b: 0, a: 0}
+    - _dissolveColor: {r: 1, g: 0, b: 0, a: 1}
+    - _fresnelColor: {r: 1, g: 0, b: 0, a: 1}
+    - _lightFlowColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
