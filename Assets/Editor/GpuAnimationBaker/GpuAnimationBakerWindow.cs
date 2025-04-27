@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using UnityEngine.UIElements;
+using System.Collections.Generic;
 
 public class GpuAnimationBakerWindow : EditorWindow
 {
@@ -20,7 +22,9 @@ public class GpuAnimationBakerWindow : EditorWindow
     public string savePath = "Asset";
     public string savePrefabPath = "Asset";
 
-    [MenuItem("RoXamiTools/GpuAnimBaker3D")]
+    public List<GameObject> test;
+
+    [MenuItem("RoXami Tools/GPU Animation/GpuAnim Baker 3D")]
     public static void ShowWindow()
     {
         GetWindow<GpuAnimationBakerWindow>("GpuAnimBaker3D");
@@ -37,18 +41,18 @@ public class GpuAnimationBakerWindow : EditorWindow
     public void OnGUI()
     {
         prefab = (GameObject)EditorGUILayout.ObjectField("SkeletonMesh", prefab, typeof(GameObject), false);
-        GuiSetAnimationClips();
+        EditorTools.ViewList(_serializedObject, AnimationClipsProperty);
         frame = EditorGUILayout.IntField("AnimationFrame", frame);
         isNormalTangent = EditorGUILayout.Toggle("isNormalTangent", isNormalTangent);
         animMode = (GPUAnimMode)EditorGUILayout.EnumPopup("GPUAnimMode", animMode);
 
         GUILayout.Space(10);
 
-        savePath = EditorTools.GuiSetFilePath(savePath, "File");
+        savePath = EditorTools.FilePath(savePath, "File");
 
         GUILayout.Space(10);
 
-        savePrefabPath = EditorTools.GuiSetFilePath(savePrefabPath, "Prefab");
+        savePrefabPath = EditorTools.FilePath(savePrefabPath, "Prefab");
 
         GUILayout.Space(10);
 
@@ -56,23 +60,20 @@ public class GpuAnimationBakerWindow : EditorWindow
         {
             BuildGpuAnimation.BakeAnimToTexture2D(prefab, clips, frame, isNormalTangent, savePath, savePrefabPath, animMode);
         }
+
+        ListView view = new ListView(test, 5)
+        {
+            selectionType = SelectionType.Multiple,
+            showAddRemoveFooter = true,
+            reorderable = true,
+            reorderMode = ListViewReorderMode.Animated,
+            showBorder = true,
+            showBoundCollectionSize = true,
+            showFoldoutHeader = true,
+        };
     }
     //=====================================================GUI====================================================
-    public void GuiSetAnimationClips()
-    {
-        //更新
-        _serializedObject.Update();
-        //开始检查是否有修改
-        EditorGUI.BeginChangeCheck();
-        //显示属性
-        //第二个参数必须为true，否则无法显示子节点即List内容
-        EditorGUILayout.PropertyField(AnimationClipsProperty, true);
-        //结束检查是否有修改
-        if (EditorGUI.EndChangeCheck())
-        {//提交修改
-            _serializedObject.ApplyModifiedProperties();
-        }
-    }
+
     public enum GPUAnimMode
     {
         GpuVerticesAnimation = 0,

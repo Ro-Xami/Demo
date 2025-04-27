@@ -51,7 +51,7 @@ public class GpuAnimatorCompute : MonoBehaviour
         mesh = prefab.GetComponent<MeshFilter>().sharedMesh;
         material = prefab.GetComponent<MeshRenderer>().sharedMaterial;
         bounds = prefab.GetComponent<MeshRenderer>().bounds;
-        frame = prefab.GetComponent<GpuAnimator>().frame;
+        frame = prefab.GetComponent<GpuAnimator>().fps;
         animations = prefab.GetComponent<GpuAnimator>().animations;
         //初始化ComputeShader变量
         kernel = compute.FindKernel("GpuAnimationRenderer");

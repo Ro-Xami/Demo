@@ -18,7 +18,7 @@ public class GpuAnimatorMono : MonoBehaviour
     {
         mesh = prefab.GetComponent<MeshFilter>().sharedMesh;
         mat = prefab.GetComponent<MeshRenderer>().sharedMaterial;
-        frame = prefab.GetComponent<GpuAnimator>().frame;
+        frame = prefab.GetComponent<GpuAnimator>().fps;
         animations = prefab.GetComponent<GpuAnimator>().animations;
     }
 

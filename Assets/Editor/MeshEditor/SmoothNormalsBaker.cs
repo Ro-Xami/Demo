@@ -10,7 +10,7 @@ public class SmoothNormalsBaker : EditorWindow
     public MeshRenderMode renderMode;
     public string savePath;
 
-    [MenuItem("RoXamiTools/MeshEditor/SmoothNormals")]
+    [MenuItem("RoXami Tools/Mesh Editor/SmoothNormals")]
     public static void ShowWindow()
     {
         GetWindow<SmoothNormalsBaker>("SmoothNormals");
@@ -20,7 +20,7 @@ public class SmoothNormalsBaker : EditorWindow
     {
         obj = (GameObject)EditorGUILayout.ObjectField("Mesh", obj, typeof(GameObject), false);
         renderMode = (MeshRenderMode)EditorGUILayout.EnumPopup("MeshRenderMode", renderMode);
-        savePath = EditorTools.GuiSetFilePath(savePath, "File");
+        savePath = EditorTools.FilePath(savePath, "File");
 
         GUILayout.Space(10);
         if (GUILayout.Button("Bake"))

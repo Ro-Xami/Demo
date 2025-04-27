@@ -300,7 +300,7 @@ public static class BuildGpuAnimation
             GpuAnimations[h].isLoop = clips[h].isLooping;
         }
         gpuAnimator.animations = GpuAnimations;
-        gpuAnimator.frame = frame;
+        gpuAnimator.fps = frame;
         switch (mode)
         {
             case GPUAnimMode.GpuVerticesAnimation:
